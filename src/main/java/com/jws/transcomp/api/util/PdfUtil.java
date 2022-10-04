@@ -48,7 +48,8 @@ public class PdfUtil {
             try {
                 contentStream.showText("----------");
                 contentStream.newLine();
-                List<String> lines = List.of(StringUtils.splitByWholeSeparatorPreserveAllTokens(removeInvalidChar(entry.toString()), ",", 100));
+                List<String> lines = List.of(StringUtils
+                        .splitByWholeSeparatorPreserveAllTokens(removeInvalidChar(entry.toString()), ",", 100));
                 lines.forEach(l -> {
                     try {
                         contentStream.showText(l);

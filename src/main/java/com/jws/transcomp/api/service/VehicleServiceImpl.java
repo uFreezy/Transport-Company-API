@@ -19,7 +19,6 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public void save(Vehicle vehicle) {
-        // TODO: check if its valid first
         this.vehicleRepository.save(vehicle);
     }
 
@@ -30,7 +29,8 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public void delete(Long id) {
-        Vehicle vh = this.vehicleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Vehicle with that id doesn't exist."));
+        Vehicle vh = this.vehicleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Vehicle with that id doesn't exist."));
         this.vehicleRepository.delete(vh);
     }
 

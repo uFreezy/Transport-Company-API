@@ -118,7 +118,7 @@ class VehicleControllerTest extends BaseTestController {
         given(this.vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        EditVehicleDto editVh = new EditVehicleDto(vh.getId(), "make", "model", "electric", (short) 12, 300, new HashSet<>(), this.employee.getCompany());
+        EditVehicleDto editVh = new EditVehicleDto(vh.getId(), "make", "model", "electric", (short) 12, 300, new HashSet<>());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/vehicle")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +133,7 @@ class VehicleControllerTest extends BaseTestController {
         given(this.vehicleService.findById(-1L))
                 .willThrow(IllegalArgumentException.class);
 
-        EditVehicleDto editVh = new EditVehicleDto(-1L, "make", "model", "electric", (short) 12, 300, new HashSet<>(), this.employee.getCompany());
+        EditVehicleDto editVh = new EditVehicleDto(-1L, "make", "model", "electric", (short) 12, 300, new HashSet<>());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/vehicle")
                         .contentType(MediaType.APPLICATION_JSON)

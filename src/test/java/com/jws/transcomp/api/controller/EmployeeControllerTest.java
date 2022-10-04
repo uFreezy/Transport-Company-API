@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(EmployeeController.class)
 @WebAppConfiguration
-public class EmployeeControllerTest extends BaseTestController {
+class EmployeeControllerTest extends BaseTestController {
 
     private List<Employee> employees = new ArrayList<>();
 

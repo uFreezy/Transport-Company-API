@@ -75,7 +75,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public PaginatedResponse filterCompanies(String name, BigDecimal revenueFrom, BigDecimal revenueTo, String sortBy, Pageable pageable) {
-
         if (sortBy != null) {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }

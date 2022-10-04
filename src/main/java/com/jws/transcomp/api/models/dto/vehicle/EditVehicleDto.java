@@ -1,7 +1,6 @@
 package com.jws.transcomp.api.models.dto.vehicle;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.Vehicle;
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.models.base.LiscenceType;
@@ -39,12 +38,14 @@ public class EditVehicleDto {
     @JsonProperty("required_licenses")
     private Set<String> requiredLicenses;
 
-    private Company company;
 
     public EditVehicleDto() {
     }
 
-    public EditVehicleDto(Long id, String make, String model, String fuelType, short peopleCapacity, int cargoCapacityKg, Set<String> requiredLicenses, Company company) {
+    public EditVehicleDto(Long id, String make,
+                          String model, String fuelType,
+                          short peopleCapacity, int cargoCapacityKg,
+                          Set<String> requiredLicenses) {
         this.id = id;
         this.make = make;
         this.model = model;
@@ -52,7 +53,6 @@ public class EditVehicleDto {
         this.peopleCapacity = peopleCapacity;
         this.cargoCapacityKg = cargoCapacityKg;
         this.requiredLicenses = requiredLicenses;
-        this.company = company;
     }
 
     FuelType parseFuelType() {

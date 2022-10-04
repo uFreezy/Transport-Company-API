@@ -92,7 +92,7 @@ public class Seeder implements ApplicationRunner {
             // Magic
             long egn = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
 
-            // Make sure that ids wont repeat
+            // Make sure that ids won't repeat
             while (clientService.idExists(egn)) {
                 egn = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
             }

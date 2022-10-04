@@ -1,7 +1,8 @@
 package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.LiscenceType;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,7 +10,8 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "employees")
 public class Employee {
@@ -35,6 +37,9 @@ public class Employee {
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Trip> trips;
 
     public Employee() {
     }
@@ -62,6 +67,7 @@ public class Employee {
         this.role = role;
         this.company = company;
     }
+
     private String generatePassword() {
         return "dummy pass"; // TODO
     }

@@ -21,5 +21,6 @@ public class CompanyDto implements Serializable {
     private BigDecimal revenue;
 
     public CompanyDto() {
+        // noargs constructor
     }
 }

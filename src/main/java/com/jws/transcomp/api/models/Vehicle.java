@@ -2,13 +2,15 @@ package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.models.base.LiscenceType;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "vehicles")
 public class Vehicle {
@@ -36,6 +38,9 @@ public class Vehicle {
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Trip> trips;
 
     public Vehicle() {
     }

@@ -27,5 +27,6 @@ public class EmployeeDto implements Serializable {
     private Long companyId;
 
     public EmployeeDto() {
+        // noargs constructor
     }
 }

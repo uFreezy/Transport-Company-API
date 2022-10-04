@@ -1,7 +1,8 @@
 package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.TripType;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,7 +11,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "trips")
 public class Trip {
