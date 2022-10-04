@@ -1,6 +1,7 @@
 package com.jws.transcomp.api.models.dto.client;
 
 import com.jws.transcomp.api.models.Trip;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Data
 public class ClientDto implements Serializable {
     @NotNull
     private Long id;
@@ -26,34 +28,10 @@ public class ClientDto implements Serializable {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Long> getTrips() {
-        return trips;
-    }
-
     public void setTrips(List<Trip> trips) {
         this.trips = new ArrayList<>();
 
         trips.forEach(trip -> this.trips.add(trip.getId()));
-    }
-
-    public List<Long> getPaidTrips() {
-        return paidTrips;
     }
 
     public void setPaidTrips(List<Trip> paidTrips) {

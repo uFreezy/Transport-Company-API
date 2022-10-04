@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.mockito.BDDMockito.given;
@@ -46,7 +45,7 @@ class VehicleControllerTest extends BaseTestController {
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getVehicle_Successfully() throws Exception {
-        Vehicle vh = this.vehicles.get(new Random().nextInt(this.vehicles.size()));
+        Vehicle vh = this.vehicles.get(0);
 
         given(vehicleService.findById(vh.getId()))
                 .willReturn(vh);

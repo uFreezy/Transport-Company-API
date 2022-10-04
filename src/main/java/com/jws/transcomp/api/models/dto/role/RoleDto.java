@@ -1,9 +1,12 @@
 package com.jws.transcomp.api.models.dto.role;
 
+import lombok.Data;
+
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Data
 public class RoleDto implements Serializable {
     private final Long id;
     @NotNull
@@ -12,14 +15,6 @@ public class RoleDto implements Serializable {
     public RoleDto(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override

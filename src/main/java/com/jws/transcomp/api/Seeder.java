@@ -25,6 +25,8 @@ public class Seeder implements ApplicationRunner {
     private final TripService tripService;
     private final ClientService clientService;
 
+    private final Random rGenerator = new Random();
+
     @Autowired
     public Seeder(RoleService roleService, UserService userService, CompanyService companyService, VehicleService vehicleService, TripService tripService, ClientService clientService) {
         this.roleService = roleService;
@@ -58,13 +60,13 @@ public class Seeder implements ApplicationRunner {
 
 
         for (int i = 0; i < 100; i++) {
-            String make = vehicleMakes.get(new Random().nextInt(vehicleMakes.size()));
+            String make = vehicleMakes.get(rGenerator.nextInt(vehicleMakes.size()));
             // Pick random model
-            String model = String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
+            String model = String.valueOf(rGenerator.nextInt(Integer.MAX_VALUE));
             // Pick random fueltype
-            FuelType fuelType = FuelType.values()[new Random().nextInt(FuelType.values().length)];
-            short peopleCapacity = (short) new Random().nextInt(1000);
-            int cargoCapacity = new Random().nextInt(1000000000);
+            FuelType fuelType = FuelType.values()[rGenerator.nextInt(FuelType.values().length)];
+            short peopleCapacity = (short) rGenerator.nextInt(1000);
+            int cargoCapacity = rGenerator.nextInt(1000000000);
 
             Set<LiscenceType> lType = new HashSet<>();
             if (cargoCapacity > 2000)
@@ -74,7 +76,7 @@ public class Seeder implements ApplicationRunner {
             else
                 lType.add(LiscenceType.B);
 
-            Company comp = companyService.findAll().get(new Random().nextInt(companyService.findAll().size()));
+            Company comp = companyService.findAll().get(rGenerator.nextInt(companyService.findAll().size()));
 
             vehicleService.save(new Vehicle(make, model, fuelType, peopleCapacity, cargoCapacity, lType, comp));
         }
@@ -95,13 +97,13 @@ public class Seeder implements ApplicationRunner {
                 egn = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
             }
 
-            String name = names.get(new Random().nextInt(names.size())) + " "
-                    + lastNames.get(new Random().nextInt(lastNames.size()));
+            String name = names.get(rGenerator.nextInt(names.size())) + " "
+                    + lastNames.get(rGenerator.nextInt(lastNames.size()));
             Client client = new Client(egn, name);
 
             Set<Company> comps = new HashSet<>();
-            comps.add(companyService.findAll().get(new Random().nextInt((int) companyService.count())));
-            comps.add(companyService.findAll().get(new Random().nextInt((int) companyService.count())));
+            comps.add(companyService.findAll().get(rGenerator.nextInt((int) companyService.count())));
+            comps.add(companyService.findAll().get(rGenerator.nextInt((int) companyService.count())));
             client.setCompanies(comps);
 
             clientService.save(client);
@@ -115,18 +117,18 @@ public class Seeder implements ApplicationRunner {
 
 
         for (int i = 0; i < 100; i++) {
-            String starting = startingPoints.get(new Random().nextInt(startingPoints.size()));
-            String ending = arrivalPoints.get(new Random().nextInt(arrivalPoints.size()));
+            String starting = startingPoints.get(rGenerator.nextInt(startingPoints.size()));
+            String ending = arrivalPoints.get(rGenerator.nextInt(arrivalPoints.size()));
             Date departure = Date.from(Instant.ofEpochSecond(ThreadLocalRandom.current().nextInt()));
             Date arrival = Date.from(departure.toInstant().plusSeconds((long) Short.MAX_VALUE * 5));
 
             List<Client> clients = new ArrayList<>();
-            TripType trpType = TripType.values()[new Random().nextInt(TripType.values().length)];
+            TripType trpType = TripType.values()[rGenerator.nextInt(TripType.values().length)];
 
 
             int maxPeople = (trpType == TripType.PASSENGER_TRIP) ? 100 : 2;
             for (int j = 0; j < maxPeople; j++) {
-                Client cl = clientService.getAll().get(new Random().nextInt((int) clientService.count()));
+                Client cl = clientService.getAll().get(rGenerator.nextInt((int) clientService.count()));
                 if (clients.stream().noneMatch(c -> Objects.equals(c.getId(), cl.getId()))) {
                     clients.add(cl);
                 }
@@ -140,13 +142,13 @@ public class Seeder implements ApplicationRunner {
                     .filter(v -> v.getPeopleCapacity() >= maxPeople && v.getCargoCapacityKg() >= cargSize)
                     .collect(Collectors.toUnmodifiableList());
 
-            Vehicle vehicle = vehicles.get(new Random().nextInt(vehicles.size()));
+            Vehicle vehicle = vehicles.get(rGenerator.nextInt(vehicles.size()));
 
             List<Employee> employees = userService.getAll()
                     .stream()
                     .filter(e -> e.getLicenses().containsAll(vehicle.getRequiredLicenses()))
                     .collect(Collectors.toUnmodifiableList());
-            Employee dr = employees.get(new Random().nextInt(employees.size()));
+            Employee dr = employees.get(rGenerator.nextInt(employees.size()));
 
             Company comp = dr.getCompany();
 
@@ -166,22 +168,22 @@ public class Seeder implements ApplicationRunner {
     private void userSeed() {
         if (userService.any()) return;
 
-        // TODO: Add administrative personal as users and role & keep "Admin" as system admin
         List<String> drivers = Arrays.asList("Ivan", "Petar", "Gosho", "Vanya", "Maria");
         List<String> companyAdmins = Arrays.asList("Petya", "Ivaylo");
         List<Company> companies = companyService.findAll();
+        String pass = "123456";
 
         for (String name : drivers) {
-            Company comp = companies.get(new Random().nextInt(companies.size()));
-            Employee user = new Employee(name, "123456", "123456", "new address", BigDecimal.valueOf(123), Set.of(LiscenceType.D, LiscenceType.C, LiscenceType.B),
+            Company comp = companies.get(rGenerator.nextInt(companies.size()));
+            Employee user = new Employee(name, pass, pass, "new address", BigDecimal.valueOf(123), Set.of(LiscenceType.D, LiscenceType.C, LiscenceType.B),
                     roleService.findByName("User"), comp);
             user.setLicenses(Set.of(LiscenceType.D, LiscenceType.C, LiscenceType.B));
             userService.save(user);
         }
 
         for (String name : companyAdmins) {
-            Company comp = companies.get(new Random().nextInt(companies.size()));
-            Employee user = new Employee(name, "123456", "123456", "new address", BigDecimal.valueOf(123), Set.of(LiscenceType.D, LiscenceType.C, LiscenceType.B),
+            Company comp = companies.get(rGenerator.nextInt(companies.size()));
+            Employee user = new Employee(name, pass, pass, "new address", BigDecimal.valueOf(123), Set.of(LiscenceType.D, LiscenceType.C, LiscenceType.B),
                     roleService.findByName("Admin"), comp);
             userService.save(user);
         }

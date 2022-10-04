@@ -1,16 +1,17 @@
 package com.jws.transcomp.api.models.responses;
 
+import lombok.Data;
 import org.modelmapper.ModelMapper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class PaginatedResponse implements Serializable {
     private Long numberOfItems;
     private int numberOfPages;
     private List<?> itemList;
-
 
     public PaginatedResponse(List<?> itemList, Long numberOfItems, int numberOfPages) {
         this.itemList = itemList;
@@ -34,29 +35,5 @@ public class PaginatedResponse implements Serializable {
 
         });
         return result;
-    }
-
-    public List<?> getItemList() {
-        return itemList;
-    }
-
-    public void setItemList(List<?> itemList) {
-        this.itemList = itemList;
-    }
-
-    public Long getNumberOfItems() {
-        return numberOfItems;
-    }
-
-    public void setNumberOfItems(Long numberOfItems) {
-        this.numberOfItems = numberOfItems;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
     }
 }

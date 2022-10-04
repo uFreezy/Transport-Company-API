@@ -1,6 +1,7 @@
 package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.TripType;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
 @Entity
 @Table(name = "trips")
 public class Trip {
@@ -72,126 +74,6 @@ public class Trip {
             this.totalPrice = this.basePrice.multiply(BigDecimal.valueOf(this.clients.size()));
         else
             this.totalPrice = this.basePrice.multiply(BigDecimal.valueOf(cargoSize));
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getStartingPoint() {
-        return startingPoint;
-    }
-
-    public void setStartingPoint(String startingPoint) {
-        this.startingPoint = startingPoint;
-    }
-
-    public String getEndingPoint() {
-        return endingPoint;
-    }
-
-    public void setEndingPoint(String endingPoint) {
-        this.endingPoint = endingPoint;
-    }
-
-    public Date getDeparture() {
-        return departure;
-    }
-
-    public void setDeparture(Date departure) {
-        this.departure = departure;
-    }
-
-    public Date getArrival() {
-        return arrival;
-    }
-
-    public void setArrival(Date arrival) {
-        this.arrival = arrival;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public BigDecimal getTotalPrice() {
-        return this.totalPrice;
-    }
-
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public TripType getType() {
-        return type;
-    }
-
-    public void setType(TripType type) {
-        this.type = type;
-    }
-
-    public short getPeopleOnboard() {
-        return peopleOnboard;
-    }
-
-    public void setPeopleOnboard(short peopleOnboard) {
-        this.peopleOnboard = peopleOnboard;
-    }
-
-    public int getCargoSize() {
-        return cargoSize;
-    }
-
-    public void setCargoSize(int cargoSize) {
-        this.cargoSize = cargoSize;
-    }
-
-    public Employee getDriver() {
-        return driver;
-    }
-
-    public void setDriver(Employee driver) {
-        this.driver = driver;
-    }
-
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
-
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public Set<Client> getClients() {
-        return clients;
-    }
-
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
-    }
-
-    public Set<Client> getPaidClients() {
-        return paidClients;
-    }
-
-    public void setPaidClients(Set<Client> paidClients) {
-        this.paidClients = paidClients;
     }
 
     public void registerPayment(Client client) {

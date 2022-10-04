@@ -66,7 +66,7 @@ public class EmployeeController extends BaseController {
         try {
             Role role = this.roleService.findById(employeeInfo.getRoleId());
             Company comp = this.userService.findByUsername(this.securityService.findLoggedInUsername()).getCompany();
-            // TODO: use mapper
+
             Employee employee = new Employee(employeeInfo.getUsername(), employeeInfo.getAddress(), employeeInfo.getSalary(), employeeInfo.getLicenses(), role, comp);
             this.userService.save(employee);
 

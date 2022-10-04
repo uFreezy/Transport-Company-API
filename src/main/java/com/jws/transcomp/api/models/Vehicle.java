@@ -2,11 +2,13 @@ package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.models.base.LiscenceType;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
+@Data
 @Entity
 @Table(name = "vehicles")
 public class Vehicle {
@@ -48,54 +50,6 @@ public class Vehicle {
         this.company = company;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMake() {
-        return make;
-    }
-
-    public void setMake(String make) {
-        this.make = make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public FuelType getFuelType() {
-        return fuelType;
-    }
-
-    public void setFuelType(FuelType fuelType) {
-        this.fuelType = fuelType;
-    }
-
-    public short getPeopleCapacity() {
-        return peopleCapacity;
-    }
-
-    public void setPeopleCapacity(short peopleCapacity) {
-        this.peopleCapacity = peopleCapacity;
-    }
-
-    public int getCargoCapacityKg() {
-        return cargoCapacityKg;
-    }
-
-    public void setCargoCapacityKg(int cargoCapacityKg) {
-        this.cargoCapacityKg = cargoCapacityKg;
-    }
-
     public Set<LiscenceType> getRequiredLicenses() {
         return requiredLiscences;
     }
@@ -104,13 +58,6 @@ public class Vehicle {
         this.requiredLiscences = requiredLiscences;
     }
 
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
 package com.jws.transcomp.api.models;
 
+import lombok.Data;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
@@ -11,10 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Data
 @Entity
 @Table(name = "companies")
 public class Company {
-
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Trip> trips = new LinkedHashSet<>();
     @Id
@@ -47,55 +48,6 @@ public class Company {
         this(name, employees);
         this.vehicles = vehicles;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Employee> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(Set<Employee> employees) {
-        this.employees = employees;
-    }
-
-    public Set<Vehicle> getVehicles() {
-        return vehicles;
-    }
-
-    public void setVehicles(Set<Vehicle> vehicles) {
-        this.vehicles = vehicles;
-    }
-
-    public Set<Client> getClients() {
-        return clients;
-    }
-
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
-    }
-
-    public Set<Trip> getTrips() {
-        return trips;
-    }
-
-    public BigDecimal getRevenue() {
-        return this.revenue;
-    }
-
 
     public BigDecimal getRevenue(Date from, Date to) {
         BigDecimal revenueCalc = new BigDecimal(0);

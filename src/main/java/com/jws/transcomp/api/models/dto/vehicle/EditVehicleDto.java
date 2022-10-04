@@ -5,6 +5,7 @@ import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.Vehicle;
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.models.base.LiscenceType;
+import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 import org.modelmapper.ModelMapper;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
 public class EditVehicleDto {
     @NotNull
     private Long id;
@@ -87,67 +89,5 @@ public class EditVehicleDto {
         mapper.map(this, destination);
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMake() {
-        return make;
-    }
-
-    public void setMake(String make) {
-        this.make = make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public String getFuelType() {
-        return fuelType;
-    }
-
-    public void setFuelType(String fuelType) {
-        this.fuelType = fuelType;
-    }
-
-    public short getPeopleCapacity() {
-        return peopleCapacity;
-    }
-
-    public void setPeopleCapacity(short peopleCapacity) {
-        this.peopleCapacity = peopleCapacity;
-    }
-
-    public int getCargoCapacityKg() {
-        return cargoCapacityKg;
-    }
-
-    public void setCargoCapacityKg(int cargoCapacityKg) {
-        this.cargoCapacityKg = cargoCapacityKg;
-    }
-
-    public Set<String> getRequiredLicenses() {
-        return requiredLicenses;
-    }
-
-    public void setRequiredLicenses(Set<String> requiredLicenses) {
-        this.requiredLicenses = requiredLicenses;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
 }

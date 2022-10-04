@@ -53,15 +53,13 @@ public class PdfUtil {
                     try {
                         contentStream.showText(l);
                         contentStream.newLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
                     }
                 });
 
                 contentStream.newLine();
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         });
 
