@@ -30,7 +30,12 @@ public class TripController extends BaseController {
     @GetMapping
     public ResponseEntity<Object> getTrip(@RequestParam(name = "id") Long id) {
         try {
-            TripDto tripDto = modelMapper.map(this.tripService.findById(id), TripDto.class);
+            Trip trip = this.tripService.findById(id);
+            TripDto tripDto = modelMapper.map(trip, TripDto.class);
+
+            if (!trip.getCompany().getId().equals(getLoggedCompany().getId())) {
+                return ResponseEntity.badRequest().body("Trip with id " + id + " doesn't belong to your company.");
+            }
 
             return ResponseEntity.ok(tripDto);
         } catch (IllegalArgumentException ex) {

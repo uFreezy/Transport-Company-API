@@ -34,10 +34,12 @@ public class CreateTripDto {
     @NotNull
     private Date arrival;
 
+    @Min(1)
     @NotNull
     @JsonProperty("base_price")
     private BigDecimal basePrice;
 
+    @Min(1)
     @NotNull
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
@@ -66,7 +68,7 @@ public class CreateTripDto {
     private Company company;
 
     @AssertTrue(message = "Trip dates cannot be in the past.")
-    private boolean datesArentInThePast() {
+    private boolean isDatesArentInThePast() {
         return this.departure.after(new Date()) || this.arrival.after(new Date());
     }
 

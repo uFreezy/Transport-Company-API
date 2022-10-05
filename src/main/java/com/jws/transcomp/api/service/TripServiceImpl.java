@@ -24,7 +24,6 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public void save(Trip trip) {
-        // TODO: Check if it is a valid Trip
         this.tripRepository.save(trip);
     }
 

@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Employee findByUsername(String username) {
         return employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User with username " + username + "doesn't exist."));
+                .orElseThrow(() -> new IllegalArgumentException("User with username " + username + " doesn't exist."));
     }
 
     @Override

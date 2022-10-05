@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
         Employee employee = employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User with username " + username + "doesn't exist."));
+                .orElseThrow(() -> new IllegalArgumentException("User with username " + username + " doesn't exist."));
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 

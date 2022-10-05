@@ -50,13 +50,14 @@ class TripControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getTrip_Successfully() throws Exception {
         Trip trip = this.trips.get(0);
+        trip.setCompany(employee.getCompany());
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=" + trip.getId()))
-                .andExpect(status().isOk())
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=" + trip.getId()));
+        res.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(trip.getId()))
-                .andExpect(jsonPath("$.company.name").value(trip.getCompany().getName()));
+                .andExpect(jsonPath("$.starting_point").value(trip.getStartingPoint()));
     }
 
     @Test
@@ -67,6 +68,17 @@ class TripControllerTest extends BaseTestController {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=-1"))
                 .andExpect(status().isBadRequest());
+
+        // doesn't belong to your company
+        Trip trip = this.trips.get(0);
+        trip.setCompany(this.generateCompanies().get(1));
+
+        given(this.tripService.findById(trip.getId()))
+                .willReturn(trip);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=" + trip.getId()))
+                .andExpect(status().isBadRequest());
+
     }
 
     @Test

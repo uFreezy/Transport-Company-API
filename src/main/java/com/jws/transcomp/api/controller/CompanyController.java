@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
 @RequestMapping("company")
 public class CompanyController extends BaseController {
 
+    CompanyController() {
+        this.modelMapper.createTypeMap(Company.class, CompanyDto.class).setConverter(CompanyDto.converter);
+    }
+
     @GetMapping
     public ResponseEntity<Object> getCompany(@RequestParam(required = false) Long id) {
 
@@ -32,13 +36,14 @@ public class CompanyController extends BaseController {
             List<Company> companies = this.companyService.findAll();
             List<CompanyDto> companiesDto = new ArrayList<>();
 
-            companies.forEach(company -> companiesDto.add(modelMapper.map(company, CompanyDto.class)));
+            companies.forEach(company ->
+                    companiesDto.add(modelMapper.map(company, CompanyDto.class)));
 
             return ResponseEntity.ok(companiesDto);
         } else {
             try {
-                CompanyDto companyDto = modelMapper.map(this.companyService.findById(id), CompanyDto.class);
-
+                Company company = this.companyService.findById(id);
+                CompanyDto companyDto = modelMapper.map(company, CompanyDto.class);
                 return ResponseEntity.ok(companyDto);
             } catch (IllegalArgumentException ex) {
                 return ResponseEntity.badRequest().body(ex.getMessage());

@@ -4,10 +4,7 @@ package com.jws.transcomp.api.models;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -32,9 +29,11 @@ public class Client {
     @ManyToMany(mappedBy = "paidClients")
     private Set<Trip> paidTrips = new HashSet<>();
 
-    @ManyToMany(mappedBy = "clients")
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "company_clients",
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "company_id"))
     private Set<Company> companies = new HashSet<>();
-
 
     public Client() {
     }

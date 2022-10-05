@@ -1,10 +1,7 @@
 package com.jws.transcomp.api.models.dto.trip;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jws.transcomp.api.models.Company;
-import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.models.Trip;
-import com.jws.transcomp.api.models.Vehicle;
 import com.jws.transcomp.api.models.base.TripType;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
@@ -34,9 +31,11 @@ public class EditTripDto {
 
     private Date arrival;
 
+    @Min(1)
     @JsonProperty("base_price")
     private BigDecimal basePrice;
 
+    @Min(1)
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
 
@@ -47,19 +46,11 @@ public class EditTripDto {
     @JsonProperty("cargo_size")
     private int cargoSize;
 
-
     @JsonProperty("driver_id")
     private Long driverId;
 
-    private Employee driver;
-
-
     @JsonProperty("vehicle_id")
     private Long vehicleId;
-
-    private Vehicle vehicle;
-
-    private Company company;
 
     @AssertTrue(message = "Trip dates cannot be in the past.")
     public boolean datesArentInThePast() {

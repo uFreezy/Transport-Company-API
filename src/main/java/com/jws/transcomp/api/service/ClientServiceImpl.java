@@ -22,9 +22,6 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void save(Client client) {
-        if (this.clientRepository.existsById(client.getId()))
-            throw new IllegalArgumentException("Client with that id already exists.");
-
         this.clientRepository.save(client);
     }
 
@@ -41,7 +38,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client findById(long id) {
         return this.clientRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Client with id " + id + "doesn't exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Client with id " + id + " doesn't exist."));
     }
 
     @Override

@@ -15,7 +15,6 @@ import java.util.Set;
 @Entity
 @Table(name = "employees")
 public class Employee {
-    // TODO: Fix table, there is a column names 'users' for some reason
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,12 +32,11 @@ public class Employee {
     private Set<LiscenceType> licenses = new HashSet<>();
     @OneToOne
     private Role role;
-
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "driver", orphanRemoval = true)
     private Set<Trip> trips;
 
     public Employee() {

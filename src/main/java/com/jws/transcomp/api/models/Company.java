@@ -2,7 +2,6 @@ package com.jws.transcomp.api.models;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Formula;
 
@@ -27,18 +26,13 @@ public class Company {
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Employee> employees = new LinkedHashSet<>();
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private Set<Vehicle> vehicles = new LinkedHashSet<>();
-    @ManyToMany(cascade = CascadeType.ALL)
 
-    private Set<Client> clients;
+    @ManyToMany
+    private Set<Client> clients = new HashSet<>();
 
     @Formula("(select sum(t.totalprice) from trips t where t.company_id = id)")
     private BigDecimal revenue;
-
-    public void setTrips(Set<Trip> trips) {
-        this.trips = trips;
-    }
 
     public Company() {
     }
@@ -55,6 +49,10 @@ public class Company {
     public Company(String name, Set<Employee> employees, Set<Vehicle> vehicles) {
         this(name, employees);
         this.vehicles = vehicles;
+    }
+
+    public void setTrips(Set<Trip> trips) {
+        this.trips = trips;
     }
 
     public BigDecimal getRevenue(Date from, Date to) {

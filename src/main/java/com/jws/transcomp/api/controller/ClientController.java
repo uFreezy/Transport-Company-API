@@ -48,9 +48,15 @@ public class ClientController extends BaseController {
                 }
 
                 client.addCompany(getLoggedCompany());
+                this.clientService.save(client);
+
                 return ResponseEntity.ok("Existing client has been added to your company");
             } else {
-                this.clientService.save(clientDto.toEntity());
+                Client clientObj = clientDto.toEntity();
+                clientObj.addCompany(getLoggedCompany());
+
+                this.clientService.save(clientObj);
+
                 return ResponseEntity.ok("New client added successfully!");
             }
 
@@ -65,6 +71,8 @@ public class ClientController extends BaseController {
             Client client = this.clientService.findById(clientId);
 
             if (client.removeCompany(getLoggedCompany())) {
+                this.clientService.save(client);
+
                 return ResponseEntity.ok("This person is no longer a client of your company");
             } else {
                 return ResponseEntity.badRequest().body("This person isn't a client of your company.");

@@ -1,8 +1,7 @@
 package com.jws.transcomp.api.models.dto.trip;
 
 import com.jws.transcomp.api.models.base.TripType;
-import com.jws.transcomp.api.models.dto.client.ClientDto;
-import com.jws.transcomp.api.models.dto.company.CompanyDto;
+import com.jws.transcomp.api.models.dto.client.ClientDtoShort;
 import com.jws.transcomp.api.models.dto.employee.EmployeeDto;
 import com.jws.transcomp.api.models.dto.vehicle.VehicleDto;
 import lombok.Data;
@@ -27,13 +26,12 @@ public class TripDto implements Serializable {
     private int cargoSize;
     private EmployeeDto driver;
     private VehicleDto vehicle;
-    private CompanyDto company;
-    private Set<ClientDto> clients;
+    private Set<ClientDtoShort> clients;
 
     public TripDto() {
     }
 
-    public TripDto(Long id, String startingPoint, String endingPoint, Date departure, Date arrival, BigDecimal basePrice, BigDecimal totalPrice, TripType type, short peopleOnboard, int cargoSize, EmployeeDto driver, VehicleDto vehicle, CompanyDto company, Set<ClientDto> clients) {
+    public TripDto(Long id, String startingPoint, String endingPoint, Date departure, Date arrival, BigDecimal basePrice, BigDecimal totalPrice, TripType type, short peopleOnboard, int cargoSize, EmployeeDto driver, VehicleDto vehicle, Set<ClientDtoShort> clients) {
         this.id = id;
         this.startingPoint = startingPoint;
         this.endingPoint = endingPoint;
@@ -46,7 +44,6 @@ public class TripDto implements Serializable {
         this.cargoSize = cargoSize;
         this.driver = driver;
         this.vehicle = vehicle;
-        this.company = company;
         this.clients = clients;
     }
 
@@ -67,13 +64,12 @@ public class TripDto implements Serializable {
                 Objects.equals(this.cargoSize, entity.cargoSize) &&
                 Objects.equals(this.driver, entity.driver) &&
                 Objects.equals(this.vehicle, entity.vehicle) &&
-                Objects.equals(this.company, entity.company) &&
                 Objects.equals(this.clients, entity.clients);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, startingPoint, endingPoint, departure, arrival, basePrice, totalPrice, type, peopleOnboard, cargoSize, driver, vehicle, company, clients);
+        return Objects.hash(id, startingPoint, endingPoint, departure, arrival, basePrice, totalPrice, type, peopleOnboard, cargoSize, driver, vehicle, clients);
     }
 
     @Override
@@ -91,7 +87,6 @@ public class TripDto implements Serializable {
                 "cargoSize = " + cargoSize + ", " +
                 "driver = " + driver + ", " +
                 "vehicle = " + vehicle + ", " +
-                "company = " + company + ", " +
                 "clients = " + clients + ")";
     }
 }

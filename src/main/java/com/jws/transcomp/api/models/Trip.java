@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -28,22 +29,25 @@ public class Trip {
     @NotNull
     private Date arrival;
     @NotNull
+    @Min(1)
     private BigDecimal basePrice;
     @NotNull
+    @Min(1)
     private BigDecimal totalPrice;
     @NotNull
     @Enumerated(EnumType.STRING)
     private TripType type;
+    @Min(1)
     private short peopleOnboard;
     private int cargoSize;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
+    @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee driver;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
+    @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 

@@ -34,8 +34,7 @@ public class Vehicle {
 
     private Set<LiscenceType> requiredLiscences;
 
-
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
