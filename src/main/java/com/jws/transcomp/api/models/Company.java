@@ -28,7 +28,7 @@ public class Company {
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Vehicle> vehicles = new LinkedHashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Client> clients = new HashSet<>();
 
     @Formula("(select sum(t.totalprice) from trips t where t.company_id = id)")
@@ -65,6 +65,14 @@ public class Company {
         }
 
         return revenueCalc;
+    }
+
+    public void addClient(Client client) {
+        this.clients.add(client);
+    }
+
+    public void addClients(Set<Client> clients) {
+        this.clients.addAll(clients);
     }
 
     @Override

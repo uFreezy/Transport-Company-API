@@ -33,6 +33,7 @@ public class Client {
     @JoinTable(name = "company_clients",
             joinColumns = @JoinColumn(name = "client_id"),
             inverseJoinColumns = @JoinColumn(name = "company_id"))
+
     private Set<Company> companies = new HashSet<>();
 
     public Client() {

@@ -32,3 +32,5 @@ target/
 out
 test-output
 atlassian-ide-plugin.xml
+
+.DS_Store

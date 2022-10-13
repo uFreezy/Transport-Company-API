@@ -19,5 +19,4 @@ public class TransCompApplication {
         return new ModelResolver(objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
     }
 
-
 }

@@ -1,6 +1,5 @@
 package com.jws.transcomp.api.converter;
 
-
 import com.jws.transcomp.api.models.base.LiscenceType;
 
 import javax.persistence.AttributeConverter;

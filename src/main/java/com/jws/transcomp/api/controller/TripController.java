@@ -8,6 +8,7 @@ import com.jws.transcomp.api.models.dto.trip.EditTripDto;
 import com.jws.transcomp.api.models.dto.trip.TripDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import com.jws.transcomp.api.util.PdfUtil;
+import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -55,7 +56,12 @@ public class TripController extends BaseController {
 
         if (loggedUser.getRole().getName().equals("Admin") && loggedUser.getCompany() != null) {
             try {
-                return ResponseEntity.ok(this.tripService.filterTrips(loggedUser.getCompany().getId(), destination, sortBy, pageable));
+                // Workaround
+                PaginatedResponse response = this.tripService.filterTrips(loggedUser.getCompany().getId(), destination, sortBy, pageable);
+                response.setItemList(modelMapper.map(response.getItemList(), new TypeToken<List<TripDto>>() {
+                }.getType()));
+
+                return ResponseEntity.ok(response);
             } catch (PropertyReferenceException ex) {
                 return ResponseEntity.badRequest().body("Invalid sorting columns provided: " + ex.getPropertyName());
             }
@@ -138,6 +144,7 @@ public class TripController extends BaseController {
 
         try {
             trip = this.tripService.findById(tripId);
+
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(String.format("Trip with id: %s doesn't exist.", tripId));
         }
@@ -149,6 +156,11 @@ public class TripController extends BaseController {
         }
 
         Client client = this.clientService.findById(userId);
+
+        // Check if trip is already paid
+        if (trip.getPaidClients().stream().anyMatch(client1 -> client1.getId().equals(client.getId()))) {
+            return ResponseEntity.badRequest().body("This user has already paid for the trip");
+        }
 
         trip.registerPayment(client);
 
