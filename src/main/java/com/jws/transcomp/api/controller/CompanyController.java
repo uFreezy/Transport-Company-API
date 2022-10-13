@@ -7,6 +7,8 @@ import com.jws.transcomp.api.models.dto.company.CompanyDto;
 import com.jws.transcomp.api.models.dto.company.CompanyEditDto;
 import com.jws.transcomp.api.models.dto.company.CompanyReportDto;
 import com.jws.transcomp.api.models.dto.employee.DriverDataDto;
+import com.jws.transcomp.api.models.responses.PaginatedResponse;
+import org.modelmapper.TypeToken;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,6 +38,7 @@ public class CompanyController extends BaseController {
             List<Company> companies = this.companyService.findAll();
             List<CompanyDto> companiesDto = new ArrayList<>();
 
+            // TODO: Match the lists directly.
             companies.forEach(company ->
                     companiesDto.add(modelMapper.map(company, CompanyDto.class)));
 
@@ -63,7 +66,11 @@ public class CompanyController extends BaseController {
         }
 
         try {
-            return ResponseEntity.ok(companyService.filterCompanies(name, revenueFrom, revenueTo, sortBy, pageable));
+            PaginatedResponse response = companyService.filterCompanies(name, revenueFrom, revenueTo, sortBy, pageable);
+            response.setItemList(modelMapper.map(response.getItemList(), new TypeToken<List<CompanyDto>>() {
+            }.getType()));
+
+            return ResponseEntity.ok(response);
         } catch (PropertyReferenceException ex) {
             return ResponseEntity.badRequest().body("Invalid sorting columns provided: " + ex.getPropertyName());
         }

@@ -11,15 +11,14 @@ import java.math.BigDecimal;
 
 @Data
 public class CompanyDto implements Serializable {
+
     public static final Converter<Company, CompanyDto> converter = context -> {
         Company source = context.getSource();
         CompanyDto destination = new ModelMapper().map(source, CompanyDto.class);
 
-
         destination.setEmployeeCount(source.getEmployees().size());
         destination.setClientCount(source.getClients().size());
         destination.setVehicleCount(source.getVehicles().size());
-
 
         return destination;
     };

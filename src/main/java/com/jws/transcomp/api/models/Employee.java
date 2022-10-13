@@ -20,6 +20,7 @@ public class Employee {
     private Long id;
     @NotNull
     private String username;
+
     private String password;
     @Transient
     private String passwordConfirm;

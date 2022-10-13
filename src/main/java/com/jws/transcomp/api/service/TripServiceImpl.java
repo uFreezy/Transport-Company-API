@@ -1,9 +1,12 @@
 package com.jws.transcomp.api.service;
 
+import com.jws.transcomp.api.models.Client;
+import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.Trip;
 import com.jws.transcomp.api.models.base.TripType;
 import com.jws.transcomp.api.models.dto.trip.TripDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
+import com.jws.transcomp.api.repository.CompanyRepository;
 import com.jws.transcomp.api.repository.TripRepository;
 import com.jws.transcomp.api.util.PageRequestUtil;
 import org.springframework.data.domain.Example;
@@ -17,14 +20,23 @@ import java.util.List;
 public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
+    private final CompanyRepository companyRepository;
 
-    public TripServiceImpl(TripRepository tripRepository) {
+    public TripServiceImpl(TripRepository tripRepository, CompanyRepository companyRepository) {
         this.tripRepository = tripRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override
     public void save(Trip trip) {
+        Company company = trip.getCompany();
+        for (Client client : trip.getClients()) {
+            company.addClient(client);
+        }
+        company.addClients(trip.getClients());
+
         this.tripRepository.save(trip);
+        this.companyRepository.save(company);
     }
 
     @Override
