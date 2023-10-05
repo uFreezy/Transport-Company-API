@@ -1,4 +1,4 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.base;
 
 public interface SecurityService {
     String findLoggedInUsername();

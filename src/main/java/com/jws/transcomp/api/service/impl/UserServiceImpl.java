@@ -1,8 +1,9 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.repository.EmployeeRepository;
 import com.jws.transcomp.api.repository.RoleRepository;
+import com.jws.transcomp.api.service.base.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

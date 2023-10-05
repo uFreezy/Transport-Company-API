@@ -4,7 +4,7 @@ import com.jws.transcomp.api.models.*;
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.models.base.LiscenceType;
 import com.jws.transcomp.api.models.base.TripType;
-import com.jws.transcomp.api.service.*;
+import com.jws.transcomp.api.service.base.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

@@ -1,9 +1,10 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Client;
 import com.jws.transcomp.api.models.dto.client.ClientDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import com.jws.transcomp.api.repository.ClientRepository;
+import com.jws.transcomp.api.service.base.ClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,12 +1,15 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.dto.company.CompanyDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import com.jws.transcomp.api.repository.CompanyRepository;
+import com.jws.transcomp.api.service.base.CompanyService;
+import com.jws.transcomp.api.service.specs.CompanySpecifications;
 import com.jws.transcomp.api.util.PageRequestUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,7 +42,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public boolean deleteById(Long id) {
         if (this.companyRepository.existsById(id)) {
-            this.companyRepository.delete(this.companyRepository.getOne(id));
+            this.companyRepository.delete(this.companyRepository.getReferenceById(id));
             return true;
         }
 
@@ -79,25 +82,21 @@ public class CompanyServiceImpl implements CompanyService {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }
 
-        // TODO: For the love of god figure out a better way to do this.
-        Page<Company> companies;
-        if (name != null && revenueFrom != null && revenueTo != null) {
-            companies = this.companyRepository.findAllByNameContainsAndRevenueGreaterThanAndRevenueLessThan(name, revenueFrom, revenueTo, pageable);
-        } else if (name == null && revenueFrom != null && revenueTo != null) {
-            companies = this.companyRepository.findAllByRevenueGreaterThanAndRevenueLessThan(revenueFrom, revenueTo, pageable);
-        } else if (name != null && revenueFrom != null && revenueTo == null) {
-            companies = this.companyRepository.findAllByNameContainsAndRevenueGreaterThan(name, revenueFrom, pageable);
-        } else if (name != null && revenueFrom == null && revenueTo != null) {
-            companies = this.companyRepository.findAllByNameContainsAndRevenueLessThan(name, revenueTo, pageable);
-        } else if (name != null && revenueFrom == null && revenueTo == null) {
-            companies = this.companyRepository.findAllByNameContains(name, pageable);
-        } else if (name == null && revenueFrom != null && revenueTo == null) {
-            companies = this.companyRepository.findAllByRevenueGreaterThan(revenueFrom, pageable);
-        } else if (name == null && revenueFrom == null && revenueTo != null) {
-            companies = this.companyRepository.findAllByRevenueLessThan(revenueTo, pageable);
-        } else {
-            throw new IllegalArgumentException("Invalid arguments passed for company filtration");
+        Specification<Company> spec = Specification.where(null);
+
+        if (name != null) {
+            spec = spec.and(CompanySpecifications.hasName(name));
         }
+
+        if (revenueFrom != null) {
+            spec = spec.and(CompanySpecifications.hasRevenueGreaterThan(revenueFrom));
+        }
+
+        if (revenueTo != null) {
+            spec = spec.and(CompanySpecifications.hasRevenueLessThan(revenueTo));
+        }
+
+        Page<Company> companies = this.companyRepository.findAll(spec, pageable);
 
         return new PaginatedResponse(PaginatedResponse.mapDto(companies.getContent(), CompanyDto.class),
                 companies.getTotalElements(),
