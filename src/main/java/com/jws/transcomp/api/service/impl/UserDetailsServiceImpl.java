@@ -1,4 +1,4 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.repository.EmployeeRepository;

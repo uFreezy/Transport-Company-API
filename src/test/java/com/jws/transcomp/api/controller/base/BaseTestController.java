@@ -10,7 +10,7 @@ import com.jws.transcomp.api.models.base.LiscenceType;
 import com.jws.transcomp.api.models.base.TripType;
 import com.jws.transcomp.api.repository.ClientRepository;
 import com.jws.transcomp.api.repository.CompanyRepository;
-import com.jws.transcomp.api.service.*;
+import com.jws.transcomp.api.service.base.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

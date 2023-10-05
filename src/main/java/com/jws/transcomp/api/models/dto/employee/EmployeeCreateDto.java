@@ -3,6 +3,7 @@ package com.jws.transcomp.api.models.dto.employee;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.base.LiscenceType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
 public class EmployeeCreateDto {
     @NotNull(message = "Username is mandatory.")
     @Size(min = 4, max = 16)
@@ -28,16 +30,4 @@ public class EmployeeCreateDto {
     @JsonProperty("role_id")
     private Long roleId;
     private Company company;
-
-    public EmployeeCreateDto() {
-    }
-
-    public EmployeeCreateDto(String username, String address, BigDecimal salary, Set<LiscenceType> licenses, Long roleId, Company company) {
-        this.username = username;
-        this.address = address;
-        this.salary = salary;
-        this.licenses = licenses;
-        this.roleId = roleId;
-        this.company = company;
-    }
 }

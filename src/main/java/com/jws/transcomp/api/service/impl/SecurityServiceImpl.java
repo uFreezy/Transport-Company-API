@@ -1,5 +1,6 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
+import com.jws.transcomp.api.service.base.SecurityService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;

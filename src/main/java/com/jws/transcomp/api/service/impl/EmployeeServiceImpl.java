@@ -1,4 +1,4 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.models.Role;
@@ -7,13 +7,15 @@ import com.jws.transcomp.api.models.dto.employee.EmployeeDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import com.jws.transcomp.api.repository.EmployeeRepository;
 import com.jws.transcomp.api.repository.RoleRepository;
+import com.jws.transcomp.api.service.base.EmployeeService;
+import com.jws.transcomp.api.service.specs.EmployeeSpecifications;
 import com.jws.transcomp.api.util.PageRequestUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,46 +96,33 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new IllegalArgumentException("Company id is empty.");
         }
 
-        if (salaryFrom.compareTo(salaryTo) > 0) {
+        if (salaryFrom != null && salaryTo != null && salaryFrom.compareTo(salaryTo) > 0) {
             throw new IllegalArgumentException("salary_from cannot be larger than salary_to");
+        }
+
+        Specification<Employee> spec = Specification.where(EmployeeSpecifications.hasCompanyId(companyId));
+
+        if (licenses != null && !licenses.isEmpty()) {
+            spec = spec.and(EmployeeSpecifications.hasLicenses(licenses));
+        }
+
+        if (salaryFrom != null) {
+            spec = spec.and(EmployeeSpecifications.hasSalaryGreaterThan(salaryFrom));
+        }
+
+        if (salaryTo != null) {
+            spec = spec.and(EmployeeSpecifications.hasSalaryLessThan(salaryTo));
         }
 
         if (sortBy != null) {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }
 
-        // TODO: For the love of god figure out a better way to do this.
-        Page<Employee> employees;
-        if (licenses != null && salaryFrom == null && salaryTo == null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndLicensesIn(companyId, new HashSet<>(licenses), pageable);
-        } else if (licenses != null && salaryFrom != null && salaryTo == null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndLicensesInAndSalaryGreaterThan(companyId, new HashSet<>(licenses), salaryFrom, pageable);
-        } else if (licenses != null && salaryFrom != null && salaryTo != null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndLicensesInAndSalaryGreaterThanAndSalaryLessThan(companyId, new HashSet<>(licenses), salaryFrom, salaryTo, pageable);
-        } else if (licenses != null && salaryFrom == null && salaryTo != null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndLicensesInAndSalaryLessThan(companyId, new HashSet<>(licenses), salaryTo, pageable);
-        } else if (licenses == null && salaryFrom != null && salaryTo != null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndSalaryGreaterThanAndSalaryLessThan(companyId, salaryFrom, salaryTo, pageable);
-        } else if (licenses == null && salaryFrom != null && salaryTo == null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndSalaryGreaterThan(companyId, salaryFrom, pageable);
-        } else if (licenses == null && salaryFrom == null && salaryTo != null) {
-            employees = this.employeeRepository
-                    .findAllByCompanyIdAndSalaryLessThan(companyId, salaryTo, pageable);
-        } else {
-            employees = this.employeeRepository.findAllByCompanyId(companyId, pageable);
-        }
-
+        Page<Employee> employees = this.employeeRepository.findAll(spec, pageable);
 
         return new PaginatedResponse(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
                 employees.getTotalElements(),
                 employees.getTotalPages());
-
     }
 
     @Override

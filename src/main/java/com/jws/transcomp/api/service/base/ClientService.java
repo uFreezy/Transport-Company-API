@@ -1,4 +1,4 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.base;
 
 import com.jws.transcomp.api.models.Client;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;

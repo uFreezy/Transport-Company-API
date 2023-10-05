@@ -1,7 +1,8 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Role;
 import com.jws.transcomp.api.repository.RoleRepository;
+import com.jws.transcomp.api.service.base.RoleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

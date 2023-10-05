@@ -2,6 +2,7 @@ package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "employees")
 public class Employee {
@@ -39,9 +41,6 @@ public class Employee {
 
     @OneToMany(mappedBy = "driver", orphanRemoval = true)
     private Set<Trip> trips;
-
-    public Employee() {
-    }
 
     public Employee(String username, String address, BigDecimal salary, Set<LiscenceType> licenses, Role role, Company company) {
         this.username = username;

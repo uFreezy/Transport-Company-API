@@ -3,7 +3,7 @@ package com.jws.transcomp.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.Employee;
-import com.jws.transcomp.api.service.*;
+import com.jws.transcomp.api.service.base.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

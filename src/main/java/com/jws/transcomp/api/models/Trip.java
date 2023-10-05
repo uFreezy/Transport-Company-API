@@ -2,6 +2,7 @@ package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.TripType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "trips")
 public class Trip {
@@ -55,9 +57,6 @@ public class Trip {
     private Set<Client> clients = new HashSet<>();
     @ManyToMany
     private Set<Client> paidClients = new HashSet<>();
-
-    public Trip() {
-    }
 
     public Trip(String startingPoint, String endingPoint, Date departure, Date arrival, BigDecimal basePrice, TripType type, int cargoSize, Employee driver, Company comp, Vehicle vehicle, Set<Client> clients) {
         this.startingPoint = startingPoint;

@@ -1,4 +1,4 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Client;
 import com.jws.transcomp.api.models.Company;
@@ -8,10 +8,12 @@ import com.jws.transcomp.api.models.dto.trip.TripDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import com.jws.transcomp.api.repository.CompanyRepository;
 import com.jws.transcomp.api.repository.TripRepository;
+import com.jws.transcomp.api.service.base.TripService;
+import com.jws.transcomp.api.service.specs.TripSpecifications;
 import com.jws.transcomp.api.util.PageRequestUtil;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,18 +64,17 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public List<Trip> getTripsByType(TripType type) {
-        Trip exampleTrip = new Trip();
-        exampleTrip.setType(type);
+        Specification<Trip> spec = Specification.where(TripSpecifications.hasType(type));
 
-        return this.tripRepository.findAll(Example.of(exampleTrip));
+        return this.tripRepository.findAll(spec);
     }
 
     @Override
     public List<Trip> getTripsForDestination(String destName) {
-        Trip exampleTrip = new Trip();
-        exampleTrip.setEndingPoint(destName);
+        Specification<Trip> spec = Specification.where(TripSpecifications.hasDestination(destName));
 
-        return this.tripRepository.findAll(Example.of(exampleTrip));
+
+        return this.tripRepository.findAll(spec);
     }
 
     @Override
@@ -91,12 +92,13 @@ public class TripServiceImpl implements TripService {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }
 
-        Page<Trip> trips;
+        Specification<Trip> spec = Specification.where(TripSpecifications.hasCompanyId(companyId));
+
         if (destination != null) {
-            trips = this.tripRepository.findAllByCompanyIdAndEndingPoint(companyId, destination, pageable);
-        } else {
-            trips = this.tripRepository.findAllByCompanyId(companyId, pageable);
+            spec = spec.and(TripSpecifications.hasDestination(destination));
         }
+
+        Page<Trip> trips = this.tripRepository.findAll(spec, pageable);
 
         return new PaginatedResponse(PaginatedResponse.mapDto(trips.getContent(), TripDto.class),
                 trips.getTotalElements(),

@@ -1,9 +1,10 @@
-package com.jws.transcomp.api.service;
+package com.jws.transcomp.api.service.impl;
 
 import com.jws.transcomp.api.models.Company;
 import com.jws.transcomp.api.models.Vehicle;
 import com.jws.transcomp.api.models.base.FuelType;
 import com.jws.transcomp.api.repository.VehicleRepository;
+import com.jws.transcomp.api.service.base.VehicleService;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 

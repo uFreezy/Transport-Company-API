@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - tcompany-network
+    env_file:
+      - .env # Reference the .env file here
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.0
+    env_file:
+      - .env # Reference the .env file here
+    ports:
+      - "3306:3306"
+    networks:
+      - tcompany-network
+    healthcheck:
+      test: [ "CMD-SHELL", 'mysqladmin ping' ]
+      interval: 10s
+      timeout: 2s
+      retries: 10
+networks:
+  tcompany-network:

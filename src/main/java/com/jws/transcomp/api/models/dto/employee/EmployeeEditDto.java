@@ -3,7 +3,9 @@ package com.jws.transcomp.api.models.dto.employee;
 import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.models.Role;
 import com.jws.transcomp.api.models.base.LiscenceType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -11,6 +13,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmployeeEditDto {
     @NotNull(message = "Employee ID is mandatory")
     private Long id;
@@ -21,18 +25,6 @@ public class EmployeeEditDto {
     private BigDecimal salary;
     private Set<LiscenceType> licenses;
     private Role role;
-
-    public EmployeeEditDto() {
-    }
-
-    public EmployeeEditDto(Long id, String username, String address, BigDecimal salary, Set<LiscenceType> licenses, Role role) {
-        this.id = id;
-        this.username = username;
-        this.address = address;
-        this.salary = salary;
-        this.licenses = licenses;
-        this.role = role;
-    }
 
 
     public void mapToEntity(Employee emp) {
