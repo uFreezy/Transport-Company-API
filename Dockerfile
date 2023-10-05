@@ -23,10 +23,10 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the application JAR file to the container
-COPY --from=build /app/target/transportcompany-0.0.1-SNAPSHOT.jar /app/transportcompany-0.0.1-SNAPSHOT.jar
+COPY --from=build /app/target/transportcompany.jar /app/transportcompany.jar
 
 # Expose port 8080 for the container
 EXPOSE 8080
 
 # Run the application when the container starts
-CMD ["java", "-jar", "transportcompany-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "transportcompany.jar"]
