@@ -1,7 +1,7 @@
 package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.FuelType;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,10 +32,10 @@ public class Vehicle {
     private int cargoCapacityKg;
 
     @Getter
-    @ElementCollection(targetClass = LicenseType.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = LiscenceType.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
 
-    private Set<LicenseType> requiredLicenses;
+    private Set<LiscenceType> requiredLicenses;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
@@ -44,7 +44,7 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Trip> trips;
 
-    public Vehicle(String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LicenseType> requiredLicenses, Company company) {
+    public Vehicle(String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LiscenceType> requiredLicenses, Company company) {
         this.make = make;
         this.model = model;
         this.fuelType = fuelType;
@@ -54,7 +54,7 @@ public class Vehicle {
         this.company = company;
     }
 
-    public void setRequiredLicenses(Set<LicenseType> requiredLiscences) {
+    public void setRequiredLicenses(Set<LiscenceType> requiredLiscences) {
         this.requiredLicenses = requiredLiscences;
     }
 

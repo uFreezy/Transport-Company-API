@@ -3,7 +3,7 @@ package com.jws.transcomp.api.models.dto.vehicle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jws.transcomp.api.models.Vehicle;
 import com.jws.transcomp.api.models.base.FuelType;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 import org.modelmapper.ModelMapper;
@@ -70,10 +70,10 @@ public class EditVehicleDto {
         }
     }
 
-    Set<LicenseType> parseLicences() {
-        Set<LicenseType> licences = new HashSet<>();
+    Set<LiscenceType> parseLicences() {
+        Set<LiscenceType> licences = new HashSet<>();
         for (String licence : this.requiredLicenses) {
-            licences.add(LicenseType.valueOf(licence));
+            licences.add(LiscenceType.valueOf(licence));
         }
 
         return licences;

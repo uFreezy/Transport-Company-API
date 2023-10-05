@@ -1,7 +1,7 @@
 package com.jws.transcomp.api.models.dto.vehicle;
 
 import com.jws.transcomp.api.models.base.FuelType;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -22,12 +22,12 @@ public class VehicleDto implements Serializable {
     @NotNull
     private int cargoCapacityKg;
 
-    private Set<LicenseType> requiredLicenses;
+    private Set<LiscenceType> requiredLicenses;
 
     public VehicleDto() {
     }
 
-    public VehicleDto(Long id, String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LicenseType> requiredLicenses) {
+    public VehicleDto(Long id, String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LiscenceType> requiredLicenses) {
         this.id = id;
         this.make = make;
         this.model = model;

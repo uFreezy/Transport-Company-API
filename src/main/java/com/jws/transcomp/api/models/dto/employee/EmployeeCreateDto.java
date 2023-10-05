@@ -2,7 +2,7 @@ package com.jws.transcomp.api.models.dto.employee;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jws.transcomp.api.models.Company;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,7 +25,7 @@ public class EmployeeCreateDto {
     @NotNull(message = "Salary is mandatory.")
     private BigDecimal salary;
 
-    private Set<LicenseType> licenses;
+    private Set<LiscenceType> licenses;
     @NotNull(message = "Role is mandatory.")
     @JsonProperty("role_id")
     private Long roleId;

@@ -1,7 +1,7 @@
 package com.jws.transcomp.api.models.dto.employee;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +24,7 @@ public class EmployeeDto implements Serializable {
     @NotNull
     private BigDecimal salary;
 
-    private Set<LicenseType> licenses;
+    private Set<LiscenceType> licenses;
 
     @JsonProperty("role_name")
     private String roleName;

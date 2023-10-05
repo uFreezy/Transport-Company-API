@@ -2,7 +2,7 @@ package com.jws.transcomp.api.models.dto.employee;
 
 import com.jws.transcomp.api.models.Employee;
 import com.jws.transcomp.api.models.Role;
-import com.jws.transcomp.api.models.base.LicenseType;
+import com.jws.transcomp.api.models.base.LiscenceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ public class EmployeeEditDto {
     @Size(min = 4)
     private String address;
     private BigDecimal salary;
-    private Set<LicenseType> licenses;
+    private Set<LiscenceType> licenses;
     private Role role;
 
 
