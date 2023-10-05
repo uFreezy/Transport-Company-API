@@ -1,6 +1,7 @@
 package com.jws.transcomp.api.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Formula;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "companies")
 public class Company {
@@ -33,9 +35,6 @@ public class Company {
 
     @Formula("(select sum(t.totalprice) from trips t where t.company_id = id)")
     private BigDecimal revenue;
-
-    public Company() {
-    }
 
     public Company(String name) {
         this.name = name;

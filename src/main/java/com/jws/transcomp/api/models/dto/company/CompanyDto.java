@@ -2,6 +2,7 @@ package com.jws.transcomp.api.models.dto.company;
 
 import com.jws.transcomp.api.models.Company;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 
@@ -10,8 +11,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
 public class CompanyDto implements Serializable {
-
     public static final Converter<Company, CompanyDto> converter = context -> {
         Company source = context.getSource();
         CompanyDto destination = new ModelMapper().map(source, CompanyDto.class);
@@ -29,10 +30,4 @@ public class CompanyDto implements Serializable {
     private int vehicleCount;
     private int clientCount;
     private BigDecimal revenue;
-
-    public CompanyDto() {
-        // noargs constructor
-    }
-
-
 }

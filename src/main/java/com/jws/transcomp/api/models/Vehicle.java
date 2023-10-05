@@ -1,8 +1,9 @@
 package com.jws.transcomp.api.models;
 
 import com.jws.transcomp.api.models.base.FuelType;
-import com.jws.transcomp.api.models.base.LiscenceType;
+import com.jws.transcomp.api.models.base.LicenseType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "vehicles")
 public class Vehicle {
@@ -29,10 +31,11 @@ public class Vehicle {
     @NotNull
     private int cargoCapacityKg;
 
-    @ElementCollection(targetClass = LiscenceType.class, fetch = FetchType.EAGER)
+    @Getter
+    @ElementCollection(targetClass = LicenseType.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
 
-    private Set<LiscenceType> requiredLiscences;
+    private Set<LicenseType> requiredLicenses;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
@@ -41,25 +44,18 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Trip> trips;
 
-    public Vehicle() {
-    }
-
-    public Vehicle(String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LiscenceType> requiredLicenses, Company company) {
+    public Vehicle(String make, String model, FuelType fuelType, short peopleCapacity, int cargoCapacityKg, Set<LicenseType> requiredLicenses, Company company) {
         this.make = make;
         this.model = model;
         this.fuelType = fuelType;
         this.peopleCapacity = peopleCapacity;
         this.cargoCapacityKg = cargoCapacityKg;
-        this.requiredLiscences = requiredLicenses;
+        this.requiredLicenses = requiredLicenses;
         this.company = company;
     }
 
-    public Set<LiscenceType> getRequiredLicenses() {
-        return requiredLiscences;
-    }
-
-    public void setRequiredLicenses(Set<LiscenceType> requiredLiscences) {
-        this.requiredLiscences = requiredLiscences;
+    public void setRequiredLicenses(Set<LicenseType> requiredLiscences) {
+        this.requiredLicenses = requiredLiscences;
     }
 
 
@@ -72,7 +68,7 @@ public class Vehicle {
                 ", fuelType=" + fuelType +
                 ", peopleCapacity=" + peopleCapacity +
                 ", cargoCapacityKg=" + cargoCapacityKg +
-                ", requiredLiscences=" + requiredLiscences +
+                ", requiredLiscences=" + requiredLicenses +
                 '}';
     }
 }

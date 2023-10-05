@@ -1,7 +1,8 @@
 package com.jws.transcomp.api.models;
 
-import com.jws.transcomp.api.models.base.LiscenceType;
+import com.jws.transcomp.api.models.base.LicenseType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "employees")
 public class Employee {
@@ -28,9 +30,9 @@ public class Employee {
     private String address;
     @NotNull
     private BigDecimal salary;
-    @ElementCollection(targetClass = LiscenceType.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = LicenseType.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Set<LiscenceType> licenses = new HashSet<>();
+    private Set<LicenseType> licenses = new HashSet<>();
     @OneToOne
     private Role role;
     @ManyToOne
@@ -40,10 +42,7 @@ public class Employee {
     @OneToMany(mappedBy = "driver", orphanRemoval = true)
     private Set<Trip> trips;
 
-    public Employee() {
-    }
-
-    public Employee(String username, String address, BigDecimal salary, Set<LiscenceType> licenses, Role role, Company company) {
+    public Employee(String username, String address, BigDecimal salary, Set<LicenseType> licenses, Role role, Company company) {
         this.username = username;
         this.address = address;
         this.salary = salary;
@@ -56,7 +55,7 @@ public class Employee {
         this.passwordConfirm = pass;
     }
 
-    public Employee(String username, String password, String passwordConfirm, String address, BigDecimal salary, Set<LiscenceType> licenses, Role role, Company company) {
+    public Employee(String username, String password, String passwordConfirm, String address, BigDecimal salary, Set<LicenseType> licenses, Role role, Company company) {
         this.username = username;
         this.password = password;
         this.passwordConfirm = passwordConfirm;

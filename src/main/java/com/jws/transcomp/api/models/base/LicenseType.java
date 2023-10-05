@@ -1,6 +1,6 @@
 package com.jws.transcomp.api.models.base;
 
-public enum LiscenceType {
+public enum LicenseType {
     AM,
     A1,
     A2,

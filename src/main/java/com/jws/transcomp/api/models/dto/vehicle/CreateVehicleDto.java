@@ -2,7 +2,7 @@ package com.jws.transcomp.api.models.dto.vehicle;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jws.transcomp.api.models.base.FuelType;
-import com.jws.transcomp.api.models.base.LiscenceType;
+import com.jws.transcomp.api.models.base.LicenseType;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
@@ -30,12 +30,12 @@ public class CreateVehicleDto {
     private short cargoCapacityKg;
     @NotNull
     @JsonProperty("required_licenses")
-    private Set<LiscenceType> requiredLicenses;
+    private Set<LicenseType> requiredLicenses;
 
     public CreateVehicleDto() {
     }
 
-    public CreateVehicleDto(String make, String model, FuelType fuelType, short peopleCapacity, short cargoCapacityKg, Set<LiscenceType> requiredLicenses) {
+    public CreateVehicleDto(String make, String model, FuelType fuelType, short peopleCapacity, short cargoCapacityKg, Set<LicenseType> requiredLicenses) {
         this.make = make;
         this.model = model;
         this.fuelType = fuelType;

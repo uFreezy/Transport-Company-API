@@ -1,6 +1,7 @@
 package com.jws.transcomp.api.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -21,9 +23,6 @@ public class Role {
     @OneToMany
     @JoinColumn(name = "users")
     private Set<Employee> employees;
-
-    public Role() {
-    }
 
     public Role(String name, Set<Employee> employees) {
         this.name = name;
