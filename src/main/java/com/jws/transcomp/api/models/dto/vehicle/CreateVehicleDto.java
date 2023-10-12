@@ -27,7 +27,7 @@ public class CreateVehicleDto {
     @NotNull
     @Range(min = 1, max = Integer.MAX_VALUE)
     @JsonProperty("cargo_capacity_kg")
-    private short cargoCapacityKg;
+    private int cargoCapacityKg;
     @NotNull
     @JsonProperty("required_licenses")
     private Set<LiscenceType> requiredLicenses;

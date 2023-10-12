@@ -5,6 +5,7 @@ import com.jws.transcomp.api.repository.RoleRepository;
 import com.jws.transcomp.api.service.base.RoleService;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -16,8 +17,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void save(Role role) {
-        roleRepository.save(role);
+    public Role save(Role role) {
+        return roleRepository.save(role);
     }
 
     @Override
@@ -28,13 +29,13 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role findByName(String roleName) {
         return roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("No role exists with name: " + roleName));
+                .orElseThrow(() -> new EntityNotFoundException("No role exists with name: " + roleName));
     }
 
     @Override
     public Role findById(Long id) {
         return this.roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid role id."));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid role id."));
     }
 
     @Override

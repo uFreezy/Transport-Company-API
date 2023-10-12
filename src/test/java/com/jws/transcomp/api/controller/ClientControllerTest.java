@@ -9,17 +9,18 @@ import org.apache.catalina.core.ApplicationContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
@@ -57,7 +58,7 @@ class ClientControllerTest extends BaseTestController {
 
         given(clientService.findById(client.getId())).willReturn(client);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/client?id=" + client.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/clients/" + client.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Ivan"));
     }
@@ -65,8 +66,12 @@ class ClientControllerTest extends BaseTestController {
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getClientById_Wrong_Id() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/client?id=-999"))
-                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+        // invalid id
+        given(clientService.findById(-999L))
+                .willThrow(EntityNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/clients/-999"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -77,7 +82,7 @@ class ClientControllerTest extends BaseTestController {
         PaginatedResponse expectedResponse = new PaginatedResponse(this.clients.subList(0, 1), 1L, 1);
         given(clientService.getClients(pageable)).willReturn(expectedResponse);
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/client/all?page=0&size=8"));
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/clients/all?page=0&size=8"));
 
         result
                 .andExpect(status().isOk())
@@ -89,19 +94,26 @@ class ClientControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void addClient_Successfully() throws Exception {
         Client client = this.clients.get(new Random().nextInt(this.clients.size()));
+        client.setId(1000L);
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/client")
+        given(this.clientService.save(Mockito.any(Client.class)))
+                .willReturn(client);
+        given(this.clientService.save(Mockito.any(Client.class)))
+                .willReturn(client);
+
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(client)));
 
-        result.andExpect(status().isOk());
+
+        result.andExpect(status().isCreated());
     }
 
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void addClient_Invalid() throws Exception {
         Client client = new Client();
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/client")
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(client)));
 
@@ -117,7 +129,7 @@ class ClientControllerTest extends BaseTestController {
         given(clientService.findById(client.getId())).willReturn(client);
 
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/client")
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(client)));
 
@@ -137,7 +149,7 @@ class ClientControllerTest extends BaseTestController {
         given(clientService.findById(client.getId())).willReturn(client);
 
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/client")
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(new CreateClientDto(1000L, "sample"))));
 
@@ -155,7 +167,7 @@ class ClientControllerTest extends BaseTestController {
 
         given(clientService.findById(client.getId())).willReturn(client);
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/client/remove?id=" + client.getId()));
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/clients/remove/" + client.getId()));
 
         result.andExpect(status().isOk());
     }
@@ -165,13 +177,13 @@ class ClientControllerTest extends BaseTestController {
     void removeFromCompany_Invalid() throws Exception {
         given(clientService.findById(-1)).willThrow(IllegalArgumentException.class);
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/client/remove?id=-1"));
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/clients/remove/-1"));
 
         result.andExpect(status().isBadRequest());
 
         given(clientService.findById(-2)).willThrow(RuntimeException.class);
 
-        ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.put("/client/remove?id=-2"));
+        ResultActions result2 = mockMvc.perform(MockMvcRequestBuilders.put("/clients/remove/-2"));
 
         result2.andExpect(status().is5xxServerError());
     }
@@ -184,7 +196,7 @@ class ClientControllerTest extends BaseTestController {
 
         given(clientService.findById(client.getId())).willReturn(client);
 
-        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/client/remove?id=" + client.getId()));
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/clients/remove/" + client.getId()));
 
         result.andExpect(status().isBadRequest());
     }

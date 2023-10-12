@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void save(Company company) {
-        this.companyRepository.save(company);
+    public Company save(Company company) {
+        return this.companyRepository.save(company);
     }
 
     @Override
@@ -62,13 +63,13 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Company findByName(String name) {
         return this.companyRepository.findByName(name)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid company name."));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid company name."));
     }
 
     @Override
     public Company findById(Long id) {
         return this.companyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid company id."));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid company id."));
     }
 
     @Override

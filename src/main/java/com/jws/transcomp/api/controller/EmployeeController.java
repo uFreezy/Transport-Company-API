@@ -8,7 +8,6 @@ import com.jws.transcomp.api.models.dto.employee.EmployeeCreateDto;
 import com.jws.transcomp.api.models.dto.employee.EmployeeDto;
 import com.jws.transcomp.api.models.dto.employee.EmployeeEditDto;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,23 +17,19 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("employee")
+@RequestMapping("/employees")
 public class EmployeeController extends BaseController {
 
-    @GetMapping
-    public ResponseEntity<Object> getEmployee(@RequestParam(name = "username") String username) {
-        try {
-            Employee employee = this.userService.findByUsername(username);
+    @GetMapping("/{username}")
+    public ResponseEntity<Object> getEmployee(@PathVariable String username) {
+        Employee employee = this.userService.findByUsername(username);
 
-            EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
+        EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
 
-            if (employee.getCompany().equals(getLoggedCompany())) {
-                return ResponseEntity.ok(employeeDto);
-            } else {
-                return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't find user with username: + " + username);
+        if (employee.getCompany().equals(getLoggedCompany())) {
+            return ResponseEntity.ok(employeeDto);
+        } else {
+            return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
         }
     }
 
@@ -49,13 +44,7 @@ public class EmployeeController extends BaseController {
         Employee loggedUser = getLoggedUser();
 
         if (loggedUser.getRole().getName().equals("Admin") && loggedUser.getCompany() != null) {
-            try {
-                return ResponseEntity.ok(this.employeeService.filterEmployees(loggedUser.getCompany().getId(), licenses, salaryFrom, salaryTo, sortBy, pageable));
-            } catch (PropertyReferenceException ex) {
-                return ResponseEntity.badRequest().body("Invalid sorting columns provided: " + ex.getPropertyName());
-            } catch (IllegalArgumentException ex) {
-                return ResponseEntity.badRequest().body(ex.getMessage());
-            }
+            return ResponseEntity.ok(this.employeeService.filterEmployees(loggedUser.getCompany().getId(), licenses, salaryFrom, salaryTo, sortBy, pageable));
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong with the employee search.");
@@ -63,50 +52,39 @@ public class EmployeeController extends BaseController {
 
     @PostMapping
     public ResponseEntity<Object> addEmployee(@Validated @RequestBody EmployeeCreateDto employeeInfo) {
-        try {
-            Role role = this.roleService.findById(employeeInfo.getRoleId());
-            Company comp = this.userService.findByUsername(this.securityService.findLoggedInUsername()).getCompany();
+        Role role = this.roleService.findById(employeeInfo.getRoleId());
+        Company comp = this.userService.findByUsername(this.securityService.findLoggedInUsername()).getCompany();
 
-            Employee employee = new Employee(employeeInfo.getUsername(), employeeInfo.getAddress(), employeeInfo.getSalary(), employeeInfo.getLicenses(), role, comp);
-            this.userService.save(employee);
+        Employee employee = new Employee(employeeInfo.getUsername(), employeeInfo.getAddress(), employeeInfo.getSalary(), employeeInfo.getLicenses(), role, comp);
+        employee = this.userService.save(employee);
 
-            return ResponseEntity.ok("New employee created successfully.");
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        return ResponseEntity.created(getLocation(employee.getId())).body("New employee created successfully.");
     }
+
 
     @PutMapping
     public ResponseEntity<Object> editEmployee(@Validated @RequestBody EmployeeEditDto eInfo) {
-        try {
-            Employee employee = userService.findById(eInfo.getId());
-            if (employee.getCompany().equals(getLoggedCompany())) {
-                if (eInfo.getRole() != null)
-                    eInfo.setRole(roleService.findById(eInfo.getRole().getId()));
-                this.userService.save(employee);
-            } else {
-                return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
-            }
-
-            return ResponseEntity.ok("User edited successfully.");
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+        Employee employee = userService.findById(eInfo.getId());
+        if (employee.getCompany().equals(getLoggedCompany())) {
+            if (eInfo.getRole() != null)
+                eInfo.setRole(roleService.findById(eInfo.getRole().getId()));
+            this.userService.save(employee);
+        } else {
+            return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
         }
+
+        return ResponseEntity.ok("User edited successfully.");
     }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deleteEmployee(@RequestParam(name = "id") Long id) {
-        try {
-            if (this.userService.findById(id).getCompany().equals(getLoggedCompany())) {
-                if (this.userService.delete(id))
-                    return ResponseEntity.ok("User deleted successfully!");
-                else
-                    return ResponseEntity.unprocessableEntity().body("Something went wrong while deleting user.");
-            } else {
-                return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteEmployee(@PathVariable Long id) {
+        if (this.userService.findById(id).getCompany().equals(getLoggedCompany())) {
+            if (this.userService.delete(id))
+                return ResponseEntity.ok("User deleted successfully!");
+            else
+                return ResponseEntity.unprocessableEntity().body("Something went wrong while deleting user.");
+        } else {
+            return ResponseEntity.badRequest().body("This employee doesn't belong to your company.");
         }
     }
 }

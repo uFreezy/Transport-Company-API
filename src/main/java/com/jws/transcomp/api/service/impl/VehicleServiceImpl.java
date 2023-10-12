@@ -8,6 +8,7 @@ import com.jws.transcomp.api.service.base.VehicleService;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -19,8 +20,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void save(Vehicle vehicle) {
-        this.vehicleRepository.save(vehicle);
+    public Vehicle save(Vehicle vehicle) {
+        return this.vehicleRepository.save(vehicle);
     }
 
     @Override
@@ -31,14 +32,14 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public void delete(Long id) {
         Vehicle vh = this.vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle with that id doesn't exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Vehicle with that id doesn't exist."));
         this.vehicleRepository.delete(vh);
     }
 
     @Override
     public Vehicle findById(Long id) {
         return this.vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid vehicle id."));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid vehicle id."));
     }
 
     @Override

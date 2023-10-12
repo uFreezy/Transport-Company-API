@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void save(Client client) {
-        this.clientRepository.save(client);
+    public Client save(Client client) {
+        return this.clientRepository.save(client);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client findById(long id) {
         return this.clientRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Client with id " + id + " doesn't exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Client with id " + id + " doesn't exist."));
     }
 
     @Override

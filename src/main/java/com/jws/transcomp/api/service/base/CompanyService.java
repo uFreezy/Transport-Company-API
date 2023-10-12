@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface CompanyService {
-    void save(Company company);
+    Company save(Company company);
 
     boolean delete(Company company);
 

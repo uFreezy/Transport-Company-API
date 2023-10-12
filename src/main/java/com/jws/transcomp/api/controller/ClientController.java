@@ -11,19 +11,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("client")
+@RequestMapping("/clients")
 public class ClientController extends BaseController {
 
-    @GetMapping
-    public ResponseEntity<Object> getClient(@RequestParam(name = "id") long clientId) {
-        try {
-            Client client = this.clientService.findById(clientId);
+    @GetMapping("/{client_id}")
+    public ResponseEntity<Object> getClient(@PathVariable(name = "client_id") long clientId) {
+        Client client = this.clientService.findById(clientId);
 
-            ClientDto clientDto = modelMapper.map(client, ClientDto.class);
-            return ResponseEntity.ok(clientDto);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+        ClientDto clientDto = modelMapper.map(client, ClientDto.class);
+        return ResponseEntity.ok(clientDto);
     }
 
     @GetMapping("/all")
@@ -39,46 +35,37 @@ public class ClientController extends BaseController {
 
     @PostMapping
     public ResponseEntity<Object> addClient(@Validated @RequestBody CreateClientDto clientDto) {
-        try {
-            if (this.clientService.idExists(clientDto.getId())) {
-                Client client = this.clientService.findById(clientDto.getId());
+        if (this.clientService.idExists(clientDto.getId())) {
+            Client client = this.clientService.findById(clientDto.getId());
 
-                if (client.getCompanies().contains(getLoggedCompany())) {
-                    throw new IllegalArgumentException("This person is already a client of your company.");
-                }
-
-                client.addCompany(getLoggedCompany());
-                this.clientService.save(client);
-
-                return ResponseEntity.ok("Existing client has been added to your company");
-            } else {
-                Client clientObj = clientDto.toEntity();
-                clientObj.addCompany(getLoggedCompany());
-
-                this.clientService.save(clientObj);
-
-                return ResponseEntity.ok("New client added successfully!");
+            if (client.getCompanies().contains(getLoggedCompany())) {
+                throw new IllegalArgumentException("This person is already a client of your company.");
             }
 
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            client.addCompany(getLoggedCompany());
+            this.clientService.save(client);
+
+            return ResponseEntity.ok("Existing client has been added to your company");
+        } else {
+            Client clientObj = clientDto.toEntity();
+            clientObj.addCompany(getLoggedCompany());
+
+            Client cl = this.clientService.save(clientObj);
+
+            return ResponseEntity.created(getLocation(cl.getId())).body("New client added successfully!");
         }
     }
 
-    @PutMapping("/remove")
-    public ResponseEntity<Object> removeFromCompany(@RequestParam(name = "id") Long clientId) {
-        try {
-            Client client = this.clientService.findById(clientId);
+    @PutMapping("/remove/{clientId}")
+    public ResponseEntity<Object> removeFromCompany(@PathVariable Long clientId) {
+        Client client = this.clientService.findById(clientId);
 
-            if (client.removeCompany(getLoggedCompany())) {
-                this.clientService.save(client);
+        if (client.removeCompany(getLoggedCompany())) {
+            this.clientService.save(client);
 
-                return ResponseEntity.ok("This person is no longer a client of your company");
-            } else {
-                return ResponseEntity.badRequest().body("This person isn't a client of your company.");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.ok("This person is no longer a client of your company");
+        } else {
+            return ResponseEntity.badRequest().body("This person isn't a client of your company.");
         }
     }
 }

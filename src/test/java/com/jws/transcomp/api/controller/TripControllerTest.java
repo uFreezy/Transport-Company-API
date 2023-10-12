@@ -12,6 +12,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 import static org.mockito.BDDMockito.given;
@@ -54,7 +56,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=" + trip.getId()));
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/trips/" + trip.getId()));
         res.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(trip.getId()))
                 .andExpect(jsonPath("$.starting_point").value(trip.getStartingPoint()));
@@ -64,10 +66,10 @@ class TripControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getTrip_Invalid() throws Exception {
         given(this.tripService.findById(-1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=-1"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.get("/trips/-1"))
+                .andExpect(status().isNotFound());
 
         // doesn't belong to your company
         Trip trip = this.trips.get(0);
@@ -76,7 +78,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip?id=" + trip.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/trips/" + trip.getId()))
                 .andExpect(status().isBadRequest());
 
     }
@@ -97,7 +99,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.filterTrips(employee.getCompany().getId(), destination, null, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(trips, (long) trips.size(), 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip/all?destination=" + destination))
+        mockMvc.perform(MockMvcRequestBuilders.get("/trips/all?destination=" + destination))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].ending_point").value(destination))
@@ -115,7 +117,7 @@ class TripControllerTest extends BaseTestController {
                 .willReturn(new PaginatedResponse(sortedTrips, (long) sortedTrips.size(), 1));
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip/all?sort_by=" + sortCriteria))
+        mockMvc.perform(MockMvcRequestBuilders.get("/trips/all?sort_by=" + sortCriteria))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].base_price").value(sortedTrips.get(0).getBasePrice()))
@@ -137,7 +139,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.filterTrips(employee.getCompany().getId(), null, sortCriteria, DEFAULT_PAGE))
                 .willThrow(PropertyReferenceException.class);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/trip/all?sort_by=" + sortCriteria));
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/trips/all?sort_by=" + sortCriteria));
         res.andExpect(status().isBadRequest());
     }
 
@@ -148,7 +150,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.filterTrips(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .willReturn(new PaginatedResponse(this.trips, (long) this.trips.size(), 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/trip/report"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/trips/report"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string("Content-Type", "application/pdf"))
                 .andExpect(MockMvcResultMatchers.header().exists("Content-Length"));
@@ -167,10 +169,14 @@ class TripControllerTest extends BaseTestController {
         given(this.vehicleService.findById(createTrip.getVehicleId()))
                 .willReturn(trip.getVehicle());
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/trip")
+        given(this.tripService.save(Mockito.any(Trip.class)))
+                .willReturn(trip);
+
+
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/trips")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(createTrip)));
-        res.andExpect(status().isOk());
+        res.andExpect(status().isCreated());
     }
 
     @Test
@@ -190,7 +196,7 @@ class TripControllerTest extends BaseTestController {
         given(this.vehicleService.findById(createTrip.getVehicleId()))
                 .willReturn(trip.getVehicle());
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/trip")
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/trips")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(createTrip)));
         res.andExpect(status().isBadRequest());
@@ -210,7 +216,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/trip")
+        mockMvc.perform(MockMvcRequestBuilders.put("/trips")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editTrip)))
                 .andExpect(status().isOk());
@@ -231,7 +237,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/trip")
+        mockMvc.perform(MockMvcRequestBuilders.put("/trips")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editTrip)))
                 .andExpect(status().isBadRequest());
@@ -240,7 +246,7 @@ class TripControllerTest extends BaseTestController {
         trip.setDeparture(DateUtils.addMonths(new Date(), -1));
         trip.setArrival(DateUtils.addMonths(new Date(), -1));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/trip")
+        mockMvc.perform(MockMvcRequestBuilders.put("/trips")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editTrip)))
                 .andExpect(status().isBadRequest());
@@ -253,9 +259,9 @@ class TripControllerTest extends BaseTestController {
         modelMapper.map(trip, glitchTrip);
 
         given(this.tripService.findById(glitchTrip.getId()))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/trip")
+        mockMvc.perform(MockMvcRequestBuilders.put("/trips")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(glitchTrip)))
                 .andExpect(status().isBadRequest());
@@ -277,7 +283,7 @@ class TripControllerTest extends BaseTestController {
         given(this.clientService.findById(client.getId()))
                 .willReturn(client);
 
-        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trip/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
+        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trips/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
                 .andExpect(status().isOk());
     }
 
@@ -286,10 +292,10 @@ class TripControllerTest extends BaseTestController {
     void registerPayment_Invalid() throws Exception {
         // trip doesn't exist
         given(this.tripService.findById(-1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trip/pay?trip_id=-1&user_id=%s", this.generateClients().get(0).getId())))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trips/pay?trip_id=-1&user_id=%s", this.generateClients().get(0).getId())))
+                .andExpect(status().isNotFound());
 
         // trip doesn't belong to company
         Trip trip = this.trips.get(0);
@@ -305,13 +311,13 @@ class TripControllerTest extends BaseTestController {
         given(this.clientService.findById(client.getId()))
                 .willReturn(client);
 
-        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trip/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
+        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trips/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
                 .andExpect(status().isBadRequest());
         // no user in trip
         clients.remove(clients.get(0));
         trip.setClients(new HashSet<>(clients));
 
-        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trip/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
+        mockMvc.perform(MockMvcRequestBuilders.put(String.format("/trips/pay?trip_id=%s&user_id=%s", trip.getId(), client.getId())))
                 .andExpect(status().isBadRequest());
     }
 
@@ -324,7 +330,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/trip?id=" + trip.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/trips/" + trip.getId()))
                 .andExpect(status().isOk());
 
     }
@@ -336,10 +342,10 @@ class TripControllerTest extends BaseTestController {
         Trip trip = this.trips.get(0);
 
         given(this.tripService.findById(-1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/trip?id=-1"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/trips/-1"))
+                .andExpect(status().isNotFound());
 
         // other company
         trip.setCompany(new Company());
@@ -347,7 +353,7 @@ class TripControllerTest extends BaseTestController {
         given(this.tripService.findById(trip.getId()))
                 .willReturn(trip);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/trip?id=" + trip.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/trips/" + trip.getId()))
                 .andExpect(status().isBadRequest());
     }
 }

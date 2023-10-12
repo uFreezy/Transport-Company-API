@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -30,15 +31,17 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public void save(Trip trip) {
+    public Trip save(Trip trip) {
         Company company = trip.getCompany();
         for (Client client : trip.getClients()) {
             company.addClient(client);
         }
         company.addClients(trip.getClients());
 
-        this.tripRepository.save(trip);
+        Trip trp = this.tripRepository.save(trip);
         this.companyRepository.save(company);
+
+        return trp;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class TripServiceImpl implements TripService {
     @Override
     public Trip findById(long id) {
         return this.tripRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid trip id!"));
+                .orElseThrow(() -> new EntityNotFoundException("Invalid trip id!"));
     }
 
 

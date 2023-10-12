@@ -7,7 +7,7 @@ import com.jws.transcomp.api.models.base.FuelType;
 import java.util.List;
 
 public interface VehicleService {
-    void save(Vehicle vehicle);
+    Vehicle save(Vehicle vehicle);
 
     boolean any();
 
