@@ -7,16 +7,15 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 public interface EmployeeService {
-    void save(Employee employee);
+    Employee save(Employee employee);
 
     boolean delete(Employee employee);
 
     Employee findByUsername(String username);
 
-    Optional<Employee> findById(Long id);
+    Employee findById(Long id);
 
     Employee getByIndex(int indx);
 

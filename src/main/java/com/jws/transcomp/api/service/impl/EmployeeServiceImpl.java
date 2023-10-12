@@ -15,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -30,8 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void save(Employee employee) {
-        this.employeeRepository.save(employee);
+    public Employee save(Employee employee) {
+        return this.employeeRepository.save(employee);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee findByUsername(String username) {
         return this.employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Can't find user with username + " + username));
+                .orElseThrow(() -> new EntityNotFoundException("Can't find user with username + " + username));
     }
 
     @Override
-    public Optional<Employee> findById(Long id) {
-        return this.employeeRepository.findById(id);
+    public Employee findById(Long id) {
+        return this.employeeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Invalid employee id."));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> findByRole(String roleName) {
         Role role = this.roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("No role exists with name: " + roleName));
+                .orElseThrow(() -> new EntityNotFoundException("No role exists with name: " + roleName));
 
         return this.employeeRepository.findByRole(role);
     }

@@ -10,7 +10,6 @@ import com.jws.transcomp.api.models.dto.employee.DriverDataDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +23,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("company")
+@RequestMapping("/companies")
 public class CompanyController extends BaseController {
 
     CompanyController() {
         this.modelMapper.createTypeMap(Company.class, CompanyDto.class).setConverter(CompanyDto.converter);
     }
 
-    @GetMapping
-    public ResponseEntity<Object> getCompany(@RequestParam(required = false) Long id) {
-
+    @GetMapping(value = {"", "/{id}"})
+    public ResponseEntity<Object> getCompany(@PathVariable(required = false) Long id) {
         if (id == null) {
             List<Company> companies = this.companyService.findAll();
             List<CompanyDto> companiesDto = new ArrayList<>();
@@ -44,15 +42,12 @@ public class CompanyController extends BaseController {
 
             return ResponseEntity.ok(companiesDto);
         } else {
-            try {
-                Company company = this.companyService.findById(id);
-                CompanyDto companyDto = modelMapper.map(company, CompanyDto.class);
-                return ResponseEntity.ok(companyDto);
-            } catch (IllegalArgumentException ex) {
-                return ResponseEntity.badRequest().body(ex.getMessage());
-            }
+            Company company = this.companyService.findById(id);
+            CompanyDto companyDto = modelMapper.map(company, CompanyDto.class);
+            return ResponseEntity.ok(companyDto);
         }
     }
+
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchCompanies(@RequestParam(value = "name", required = false) String name,
@@ -65,15 +60,11 @@ public class CompanyController extends BaseController {
             return ResponseEntity.badRequest().body("You need to have at least one parameter to search by.");
         }
 
-        try {
-            PaginatedResponse response = companyService.filterCompanies(name, revenueFrom, revenueTo, sortBy, pageable);
-            response.setItemList(modelMapper.map(response.getItemList(), new TypeToken<List<CompanyDto>>() {
-            }.getType()));
+        PaginatedResponse response = companyService.filterCompanies(name, revenueFrom, revenueTo, sortBy, pageable);
+        response.setItemList(modelMapper.map(response.getItemList(), new TypeToken<List<CompanyDto>>() {
+        }.getType()));
 
-            return ResponseEntity.ok(response);
-        } catch (PropertyReferenceException ex) {
-            return ResponseEntity.badRequest().body("Invalid sorting columns provided: " + ex.getPropertyName());
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
@@ -81,36 +72,28 @@ public class CompanyController extends BaseController {
         if (companyService.existsByName(companyDto.getName()))
             return ResponseEntity.badRequest().body("Company with the name " + companyDto.getName() + " already exists.");
 
-        this.companyService.save(companyDto.toEntityObject());
+        Company cmp = this.companyService.save(companyDto.toEntityObject());
 
-        return ResponseEntity.ok("Successfully created the new company! Name: " + companyDto.getName());
+        return ResponseEntity.created(getLocation(cmp.getId())).body("Successfully created the new company!");
     }
 
     @PutMapping
     public ResponseEntity<Object> editCompany(@Validated @RequestBody CompanyEditDto companyDto) {
-        try {
-            Company comp = this.companyService.findById(companyDto.getId());
-            modelMapper.map(companyDto, comp);
-            this.companyService.save(comp);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+        Company comp = this.companyService.findById(companyDto.getId());
+        modelMapper.map(companyDto, comp);
+        this.companyService.save(comp);
 
         return ResponseEntity.ok("Successfully edited a company! Id: " + companyDto.getId());
     }
 
 
-    @DeleteMapping
-    public ResponseEntity<Object> deleteCompany(@RequestParam Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteCompany(@PathVariable Long id) {
         if (!this.companyService.existsById(id))
-            return ResponseEntity.badRequest().body(String.format("Company with id %s doesn't exist", id));
+            return ResponseEntity.notFound().build();
 
-        try {
-            if (this.companyService.deleteById(id))
-                return ResponseEntity.ok("Company deleted successfully!");
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(String.format("Something went wrong: %s", ex.getMessage()));
-        }
+        if (this.companyService.deleteById(id))
+            return ResponseEntity.ok("Company deleted successfully!");
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong while deleting the company");
     }
@@ -134,22 +117,22 @@ public class CompanyController extends BaseController {
 
 
         BigDecimal totalRevenue = cmp.getRevenue(dateFrom, dateTo);
-        List<DriverDataDto> driverData = new ArrayList<>();
+        List<DriverDataDto> driverData = cmp.getEmployees().stream()
+                .filter(e -> "User".equals(e.getRole().getName()))
+                .map(e -> {
+                    List<Trip> driverTrips = cmp.getTrips().stream()
+                            .filter(t -> t.getDriver().equals(e))
+                            .filter(t -> t.getDeparture().after(finalDateFrom) && t.getDeparture().before(finalDateTo)).collect(Collectors.toList());
+                    int tripCount = driverTrips.size();
+                    BigDecimal driverRevenue = driverTrips.stream()
+                            .map(Trip::getTotalPrice)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        cmp.getEmployees().forEach(e -> {
-            if (e.getRole().getName().equals("User")) {
-                List<Trip> driverTrips = cmp.getTrips().stream()
-                        .filter(t -> t.getDriver().equals(e))
-                        .filter(t -> t.getDeparture().after(finalDateFrom) && t.getDeparture().before(finalDateTo))
-                        .collect(Collectors.toList());
-                int tripCount = driverTrips.size();
-                BigDecimal driverRevenue = driverTrips.stream()
-                        .filter(t -> t.getDeparture().after(finalDateFrom) && t.getDeparture().before(finalDateTo))
-                        .map(Trip::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    return new DriverDataDto(e.getId(), e.getUsername(), tripCount, driverRevenue);
+                })
+                .collect(Collectors.toList());
 
-                driverData.add(new DriverDataDto(e.getId(), e.getUsername(), tripCount, driverRevenue));
-            }
-        });
+
         return ResponseEntity.ok(new CompanyReportDto(totalTrips, totalRevenue, driverData));
     }
 }

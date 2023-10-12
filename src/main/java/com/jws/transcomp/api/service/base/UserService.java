@@ -5,7 +5,7 @@ import com.jws.transcomp.api.models.Employee;
 import java.util.List;
 
 public interface UserService {
-    void save(Employee employee);
+    Employee save(Employee employee);
 
     boolean delete(Long id);
 

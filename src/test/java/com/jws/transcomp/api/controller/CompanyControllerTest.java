@@ -8,6 +8,7 @@ import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import org.apache.catalina.core.ApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -16,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,7 +65,7 @@ class CompanyControllerTest extends BaseTestController {
 
         given(companyService.findById(company.getId())).willReturn(company);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/company?id=" + company.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies/" + company.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(company.getName()));
     }
@@ -71,16 +73,16 @@ class CompanyControllerTest extends BaseTestController {
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getCompany_Invalid() throws Exception {
-        given(companyService.findById(-999L)).willThrow(IllegalArgumentException.class);
+        given(companyService.findById(-999L)).willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/company?id=-999"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies/-999"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getCompany_All_Successfully() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/company"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").exists())
@@ -97,7 +99,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies(name, null, null, null, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(filteredResponseName, 1L, 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?name=%s", name)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?name=%s", name)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].name", containsString(name)));
@@ -110,7 +112,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies(null, revenueFrom, null, null, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(filteredResponse, 3L, 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?revenue_from=%s", revenueFrom)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?revenue_from=%s", revenueFrom)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].id").value(filteredResponse.get(0).getId()));
@@ -123,7 +125,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies(null, null, revenueTo, null, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(filteredResponseTo, 3L, 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?revenue_to=%s", revenueTo)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?revenue_to=%s", revenueTo)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].id").value(filteredResponseTo.get(0).getId()));
@@ -143,7 +145,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies(nameFull, revenueFromFull, revenueToFull, null, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(filteredResponseFull, 3L, 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?name=%s&revenue_from=%s&revenue_to=%s", nameFull, revenueFromFull, revenueToFull)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?name=%s&revenue_from=%s&revenue_to=%s", nameFull, revenueFromFull, revenueToFull)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].id").value(filteredResponseFull.get(0).getId()));
@@ -158,7 +160,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies("dummy", null, null, sortCriteria, DEFAULT_PAGE))
                 .willReturn(new PaginatedResponse(filteredResponseSort, 3L, 1));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?name=dummy&sort_by=%s", sortCriteria)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?name=dummy&sort_by=%s", sortCriteria)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].id").value(filteredResponseSort.get(0).getId()));
@@ -168,7 +170,7 @@ class CompanyControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void searchCompanies_NoFilters() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/company/search"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies/search"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -184,7 +186,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.filterCompanies("dummy", null, null, sortCriteria, DEFAULT_PAGE))
                 .willThrow(PropertyReferenceException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/company/search?name=dummy&sort_by=%s", sortCriteria)))
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/companies/search?name=dummy&sort_by=%s", sortCriteria)))
                 .andExpect(status().isBadRequest());
 
     }
@@ -192,13 +194,16 @@ class CompanyControllerTest extends BaseTestController {
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void addCompany_Successfully() throws Exception {
-
         Company comp = new Company("Ekont");
+        comp.setId(3L);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/company")
+        given(this.companyService.save(Mockito.any(Company.class)))
+                .willReturn(comp);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(comp)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -213,13 +218,13 @@ class CompanyControllerTest extends BaseTestController {
         given(this.companyService.existsByName(cmp.getName()))
                 .willReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/company")
+        mockMvc.perform(MockMvcRequestBuilders.post("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(cmpDto)))
                 .andExpect(status().isBadRequest());
 
         // empty company
-        mockMvc.perform(MockMvcRequestBuilders.post("/company")
+        mockMvc.perform(MockMvcRequestBuilders.post("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(new CompanyCreateDto())))
                 .andExpect(status().isBadRequest());
@@ -232,7 +237,7 @@ class CompanyControllerTest extends BaseTestController {
 
         CompanyEditDto cmp = new CompanyEditDto(0L, "diff");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/company")
+        mockMvc.perform(MockMvcRequestBuilders.put("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(cmp)))
                 .andExpect(status().isOk());
@@ -247,7 +252,7 @@ class CompanyControllerTest extends BaseTestController {
         CompanyEditDto cmp = new CompanyEditDto(-9L, "diff");
 
         // Wrong id
-        mockMvc.perform(MockMvcRequestBuilders.put("/company")
+        mockMvc.perform(MockMvcRequestBuilders.put("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(cmp)))
                 .andExpect(status().isBadRequest());
@@ -256,7 +261,7 @@ class CompanyControllerTest extends BaseTestController {
 
         CompanyEditDto cmp2 = new CompanyEditDto(0L, "different name");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/company")
+        mockMvc.perform(MockMvcRequestBuilders.put("/companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(cmp2)))
                 .andExpect(status().isBadRequest());
@@ -268,7 +273,7 @@ class CompanyControllerTest extends BaseTestController {
         given(companyService.existsById(0L)).willReturn(true);
         given(companyService.deleteById(0L)).willReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/company?id=0"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/companies/0"))
                 .andExpect(status().isOk());
 
     }
@@ -278,13 +283,13 @@ class CompanyControllerTest extends BaseTestController {
     void deleteCompany_Invalid() throws Exception {
         given(companyService.existsById(0L)).willReturn(false);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/company?id=0"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/companies/0"))
+                .andExpect(status().isNotFound());
 
         given(companyService.existsById(0L)).willReturn(true);
         given(companyService.deleteById(0L)).willReturn(false);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/company?id=0"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/companies/0"))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -292,14 +297,14 @@ class CompanyControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getCompanyReport_Successfully() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/company/report"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies/report"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void getCompany_Report_Invalid() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/company/report?date_from=01/01/1990&date_to=01/01/1980"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/companies/report?date_from=01/01/1990&date_to=01/01/1980"))
                 .andExpect(status().isBadRequest());
     }
 

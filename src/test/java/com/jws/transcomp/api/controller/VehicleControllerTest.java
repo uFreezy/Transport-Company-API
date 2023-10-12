@@ -8,6 +8,7 @@ import com.jws.transcomp.api.models.dto.vehicle.CreateVehicleDto;
 import com.jws.transcomp.api.models.dto.vehicle.EditVehicleDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -15,6 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +52,7 @@ class VehicleControllerTest extends BaseTestController {
         given(vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/vehicle?id=" + vh.getId()));
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/vehicles/" + vh.getId()));
         res.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(vh.getId()));
     }
@@ -60,10 +62,10 @@ class VehicleControllerTest extends BaseTestController {
     void getVehicle_Invalid() throws Exception {
         // invalid id
         given(vehicleService.findById(1000L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/vehicle?id=1000"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.get("/vehicles/1000"))
+                .andExpect(status().isNotFound());
         // not your company
         Vehicle vh = this.vehicles.get(0);
         vh.setCompany(new Company());
@@ -71,7 +73,7 @@ class VehicleControllerTest extends BaseTestController {
         given(vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/vehicle?id=" + vh.getId()));
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.get("/vehicles/" + vh.getId()));
         res.andExpect(status().isBadRequest());
     }
 
@@ -82,7 +84,7 @@ class VehicleControllerTest extends BaseTestController {
                 .willReturn(this.vehicles.stream().filter(v -> v.getCompany().getName().equals(this.vehicles.get(0).getCompany().getName())).
                         collect(Collectors.toList()));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/vehicle/all"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/vehicles/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].make").value("Ford"))
                 .andExpect(jsonPath("$[1].make").value("BMW"))
@@ -95,17 +97,22 @@ class VehicleControllerTest extends BaseTestController {
     @WithMockUser(value = "admin", roles = {"Admin"})
     void createVehicle_Successfully() throws Exception {
         CreateVehicleDto createDto = new CreateVehicleDto("BMW", "X3", FuelType.DIESEL, (short) 6, (short) 1000, new HashSet<>());
+        Vehicle vehicle = new Vehicle(createDto.getMake(), createDto.getModel(), createDto.getFuelType(), createDto.getPeopleCapacity(), createDto.getCargoCapacityKg(), createDto.getRequiredLicenses(), this.employee.getCompany());
+        vehicle.setId(1000L);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/vehicle")
+        given(this.vehicleService.save(Mockito.any(Vehicle.class)))
+                .willReturn(vehicle);
+
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(createDto)));
-        res.andExpect(status().isOk());
+        res.andExpect(status().isCreated());
     }
 
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
     void createVehicle_Invalid() throws Exception {
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/vehicle")
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.post("/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objToJson(new CreateVehicleDto())));
         res.andExpect(status().isBadRequest());
@@ -120,7 +127,7 @@ class VehicleControllerTest extends BaseTestController {
 
         EditVehicleDto editVh = new EditVehicleDto(vh.getId(), "make", "model", "electric", (short) 12, 300, new HashSet<>());
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/vehicle")
+        mockMvc.perform(MockMvcRequestBuilders.put("/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editVh)))
                 .andExpect(status().isOk());
@@ -131,14 +138,14 @@ class VehicleControllerTest extends BaseTestController {
     void editVehicle_Invalid() throws Exception {
         // invalid id
         given(this.vehicleService.findById(-1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
         EditVehicleDto editVh = new EditVehicleDto(-1L, "make", "model", "electric", (short) 12, 300, new HashSet<>());
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/vehicle")
+        mockMvc.perform(MockMvcRequestBuilders.put("/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editVh)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
 
         // not owned by company
         Vehicle vh = this.vehicles.get(0);
@@ -148,7 +155,7 @@ class VehicleControllerTest extends BaseTestController {
         given(this.vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/vehicle")
+        mockMvc.perform(MockMvcRequestBuilders.put("/vehicles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editVh)))
                 .andExpect(status().isBadRequest());
@@ -161,7 +168,7 @@ class VehicleControllerTest extends BaseTestController {
         given(this.vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicle?id=" + vh.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicles/" + vh.getId()))
                 .andExpect(status().isOk());
     }
 
@@ -170,10 +177,10 @@ class VehicleControllerTest extends BaseTestController {
     void deleteVehicle_Invalid() throws Exception {
         // invalid id
         given(this.vehicleService.findById(-1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicle?id=-1"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicles/-1"))
+                .andExpect(status().isNotFound());
 
         // not owned by company
         Vehicle vh = this.vehicles.get(0);
@@ -181,7 +188,7 @@ class VehicleControllerTest extends BaseTestController {
         given(this.vehicleService.findById(vh.getId()))
                 .willReturn(vh);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicle?id=" + vh.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/vehicles/" + vh.getId()))
                 .andExpect(status().isBadRequest());
     }
 }

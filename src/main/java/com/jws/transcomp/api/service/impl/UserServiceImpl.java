@@ -7,6 +7,7 @@ import com.jws.transcomp.api.service.base.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -22,9 +23,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(Employee employee) {
+    public Employee save(Employee employee) {
         employee.setPassword(bCryptPasswordEncoder.encode(employee.getPassword()));
-        employeeRepository.save(employee);
+        return employeeRepository.save(employee);
     }
 
     @Override
@@ -32,9 +33,9 @@ public class UserServiceImpl implements UserService {
         if (this.employeeRepository.existsById(id)) {
             this.employeeRepository.deleteById(id);
 
-            return !this.employeeRepository.findById(id).isPresent();
+            return this.employeeRepository.findById(id).isEmpty();
         } else {
-            throw new IllegalArgumentException("User with provided id doesn't exist!");
+            throw new EntityNotFoundException("User with provided id doesn't exist!");
         }
 
     }
@@ -42,13 +43,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Employee findByUsername(String username) {
         return employeeRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User with username " + username + " doesn't exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " doesn't exist."));
     }
 
     @Override
     public Employee findById(Long id) {
         return this.employeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User id is not valid."));
+                .orElseThrow(() -> new EntityNotFoundException("User id is not valid."));
     }
 
     @Override

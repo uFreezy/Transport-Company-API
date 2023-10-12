@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClientService {
-    void save(Client client);
+    Client save(Client client);
 
     boolean any();
 

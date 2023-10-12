@@ -6,7 +6,7 @@ import com.jws.transcomp.api.models.Role;
 import java.util.List;
 
 public interface RoleService {
-    void save(Role role);
+    Role save(Role role);
 
     boolean any();
 

@@ -10,6 +10,7 @@ import com.jws.transcomp.api.models.dto.employee.EmployeeEditDto;
 import com.jws.transcomp.api.models.responses.PaginatedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.MediaType;
@@ -18,6 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,7 +73,7 @@ class EmployeeControllerTest extends BaseTestController {
         given(this.userService.findByUsername(emp.getUsername()))
                 .willReturn(emp);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee?username=" + emp.getUsername()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/" + emp.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(emp.getUsername()));
     }
@@ -85,14 +87,14 @@ class EmployeeControllerTest extends BaseTestController {
         given(this.userService.findByUsername(emp.getUsername()))
                 .willReturn(emp);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee?username=" + emp.getUsername()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/" + emp.getUsername()))
                 .andExpect(status().isBadRequest());
 
         // invalid username
         given(this.userService.findByUsername(emp.getUsername()))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee?username=" + emp.getUsername()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/" + emp.getUsername()))
                 .andExpect(status().isNotFound());
 
         // internal error
@@ -100,7 +102,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willThrow(RuntimeException.class);
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee?username=sample"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/sample"))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -118,7 +120,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willReturn(new PaginatedResponse(resultEmps, (long) employees.size(), 1));
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all?salary_from=" + salaryFrom + "&salary_to=" + salaryTo))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all?salary_from=" + salaryFrom + "&salary_to=" + salaryTo))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].username", containsString(resultEmps.get(0).getUsername())))
@@ -136,7 +138,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willReturn(new PaginatedResponse(licenceFiltered, (long) licenceFiltered.size(), 1));
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all?licenses=" + LiscenceType.C))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all?licenses=" + LiscenceType.C))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].username", containsString(licenceFiltered.get(0).getUsername())))
@@ -151,7 +153,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willReturn(new PaginatedResponse(this.employees, (long) this.employees.size(), 1));
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all?sort_by=" + sortCriteria))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all?sort_by=" + sortCriteria))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.item_list").exists())
                 .andExpect(jsonPath("$.item_list[0].salary").value(this.employees.get(0).getSalary()));
@@ -170,7 +172,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willThrow(IllegalArgumentException.class);
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all?salary_from=" + salaryFrom + "&salary_to=" + salaryTo))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all?salary_from=" + salaryFrom + "&salary_to=" + salaryTo))
                 .andExpect(status().isBadRequest());
 
         // filter invalid sort
@@ -181,14 +183,14 @@ class EmployeeControllerTest extends BaseTestController {
                 .willThrow(PropertyReferenceException.class);
 
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all?sort_by=" + sortCriteria))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all?sort_by=" + sortCriteria))
                 .andExpect(status().isBadRequest());
 
         // internal server error
         given(employeeService.filterEmployees(mockCompany.getId(), null, null, null, null, DEFAULT_PAGE))
                 .willThrow(RuntimeException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employees/all"))
                 .andExpect(status().is5xxServerError());
 
     }
@@ -199,17 +201,23 @@ class EmployeeControllerTest extends BaseTestController {
         Role role = new Role("Admin", new HashSet<>());
         role.setId(1L);
 
+        EmployeeCreateDto createDto = new EmployeeCreateDto("diego", "palm street", BigDecimal.valueOf(123), new HashSet<>(), 1L, new Company("Kadabra"));
+        Employee employee = new Employee("diego", "palm street", BigDecimal.valueOf(123), new HashSet<>(), role, new Company("Kadabra"));
+        employee.setId(1L);
+
         given(this.roleService.findById(1L))
                 .willReturn(role);
+        given(this.userService.save(Mockito.any(Employee.class)))
+                .willReturn(employee);
 
-        EmployeeCreateDto createDto = new EmployeeCreateDto("diego", "palm street", BigDecimal.valueOf(123), new HashSet<>(), 1L, new Company("Kadabra"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/employee")
+        mockMvc.perform(MockMvcRequestBuilders.post("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(createDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
     }
+
 
     @Test
     @WithMockUser(value = "admin", roles = {"Admin"})
@@ -218,12 +226,12 @@ class EmployeeControllerTest extends BaseTestController {
         EmployeeCreateDto createDto = new EmployeeCreateDto("-------", "palm street", BigDecimal.valueOf(123), new HashSet<>(), 1L, new Company("Kadabra"));
 
         given(this.roleService.findById(1L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/employee")
+        mockMvc.perform(MockMvcRequestBuilders.post("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(createDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -239,7 +247,7 @@ class EmployeeControllerTest extends BaseTestController {
 
         EmployeeEditDto editDto = new EmployeeEditDto(employee.getId(), "new_name", "new address", new BigDecimal(1000), new HashSet<>(), new Role("brand new role"));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/employee")
+        mockMvc.perform(MockMvcRequestBuilders.put("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editDto)))
                 .andExpect(status().isOk());
@@ -259,21 +267,21 @@ class EmployeeControllerTest extends BaseTestController {
 
         EmployeeEditDto editDto = new EmployeeEditDto(employee.getId(), "new_name", "new address", new BigDecimal(1000), new HashSet<>(), new Role("brand new role"));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/employee")
+        mockMvc.perform(MockMvcRequestBuilders.put("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(editDto)))
                 .andExpect(status().isBadRequest());
 
         // Invalid id
         given(this.userService.findById(Long.MAX_VALUE))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
         EmployeeEditDto invalidDto = new EmployeeEditDto(Long.MAX_VALUE, "new_name", "new address", new BigDecimal(1000), new HashSet<>(), new Role("brand new role"));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/employee")
+        mockMvc.perform(MockMvcRequestBuilders.put("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(this.objToJson(invalidDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -286,7 +294,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willReturn(emp);
         given(this.userService.delete(emp.getId())).willReturn(true);
 
-        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.delete("/employee?id=" + emp.getId()));
+        ResultActions res = mockMvc.perform(MockMvcRequestBuilders.delete("/employees/" + emp.getId()));
         res.andExpect(status().isOk());
     }
 
@@ -295,10 +303,10 @@ class EmployeeControllerTest extends BaseTestController {
     void deleteEmployee_Invalid() throws Exception {
         // invalid id
         given(this.userService.findById(1000L))
-                .willThrow(IllegalArgumentException.class);
+                .willThrow(EntityNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/employee?id=1000"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/employees/1000"))
+                .andExpect(status().isNotFound());
 
         // not your company
 
@@ -307,7 +315,7 @@ class EmployeeControllerTest extends BaseTestController {
 
         given(this.userService.findById(emp.getId()))
                 .willReturn(emp);
-        mockMvc.perform(MockMvcRequestBuilders.delete("/employee?id=" + emp.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/employees/" + emp.getId()))
                 .andExpect(status().isBadRequest());
 
         // unprocessable entity
@@ -318,7 +326,7 @@ class EmployeeControllerTest extends BaseTestController {
                 .willReturn(unp);
         given(this.userService.delete(unp.getId()))
                 .willReturn(false);
-        mockMvc.perform(MockMvcRequestBuilders.delete("/employee?id=" + unp.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/employees/" + unp.getId()))
                 .andExpect(status().isUnprocessableEntity());
 
     }

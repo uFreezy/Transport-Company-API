@@ -12,21 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("vehicle")
+@RequestMapping("/vehicles")
 public class VehicleController extends BaseController {
-    @GetMapping
-    public ResponseEntity<Object> getVehicle(@RequestParam(name = "id") Long id) {
-        try {
-            Vehicle vh = vehicleService.findById(id);
-            VehicleDto vehicleDto = this.modelMapper.map(vh, VehicleDto.class);
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getVehicle(@PathVariable Long id) {
+        Vehicle vh = vehicleService.findById(id);
+        VehicleDto vehicleDto = this.modelMapper.map(vh, VehicleDto.class);
 
-            if (vh.getCompany().equals(getLoggedCompany())) {
-                return ResponseEntity.ok(vehicleDto);
-            } else {
-                return ResponseEntity.badRequest().body("This vehicle is not owned by your company! ");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+        if (vh.getCompany().equals(getLoggedCompany())) {
+            return ResponseEntity.ok(vehicleDto);
+        } else {
+            return ResponseEntity.badRequest().body("This vehicle is not owned by your company! ");
         }
     }
 
@@ -43,48 +39,36 @@ public class VehicleController extends BaseController {
     @PostMapping
     public ResponseEntity<Object> createVehicle(@Valid @RequestBody CreateVehicleDto vehicleDto) {
         Vehicle vehicle;
-        try {
-            vehicle = this.modelMapper.map(vehicleDto, Vehicle.class);
-            vehicle.setCompany(getLoggedCompany());
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().body("Invalid vehicle data.");
-        }
+        vehicle = this.modelMapper.map(vehicleDto, Vehicle.class);
+        vehicle.setCompany(getLoggedCompany());
 
-        this.vehicleService.save(vehicle);
+        Vehicle vh = this.vehicleService.save(vehicle);
 
-        return ResponseEntity.ok("Vehicle created successfully!");
+        return ResponseEntity.created(getLocation(vh.getId())).body("Vehicle created successfully!");
     }
 
     @PutMapping
     public ResponseEntity<Object> editVehicle(@RequestBody EditVehicleDto vehicleDto) {
-        try {
-            Vehicle vehicle = this.vehicleService.findById(vehicleDto.getId());
-            if (vehicle.getCompany().equals(getLoggedCompany())) {
-                vehicleDto.mapToEntity(vehicle);
+        Vehicle vehicle = this.vehicleService.findById(vehicleDto.getId());
+        if (vehicle.getCompany().equals(getLoggedCompany())) {
+            vehicleDto.mapToEntity(vehicle);
 
-                this.vehicleService.save(vehicle);
-                return ResponseEntity.ok("Vehicle edited successfully!");
-            } else {
-                return ResponseEntity.badRequest().body("This vehicle is not owned by your company.");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            this.vehicleService.save(vehicle);
+            return ResponseEntity.ok("Vehicle edited successfully!");
+        } else {
+            return ResponseEntity.badRequest().body("This vehicle is not owned by your company.");
         }
     }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deleteVehicle(@RequestParam(name = "id") Long id) {
-        try {
-            Vehicle vh = this.vehicleService.findById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteVehicle(@PathVariable Long id) {
+        Vehicle vh = this.vehicleService.findById(id);
 
-            if (vh.getCompany().equals(getLoggedCompany())) {
-                this.vehicleService.delete(vh.getId());
-                return ResponseEntity.ok("Vehicle deleted successfully.");
-            } else {
-                return ResponseEntity.badRequest().body("This vehicle isn't owned by your company!");
-            }
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+        if (vh.getCompany().equals(getLoggedCompany())) {
+            this.vehicleService.delete(vh.getId());
+            return ResponseEntity.ok("Vehicle deleted successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("This vehicle isn't owned by your company!");
         }
     }
 }
