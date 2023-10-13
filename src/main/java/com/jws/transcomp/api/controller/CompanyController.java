@@ -36,7 +36,6 @@ public class CompanyController extends BaseController {
             List<Company> companies = this.companyService.findAll();
             List<CompanyDto> companiesDto = new ArrayList<>();
 
-            // TODO: Match the lists directly.
             companies.forEach(company ->
                     companiesDto.add(modelMapper.map(company, CompanyDto.class)));
 

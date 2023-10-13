@@ -36,6 +36,7 @@ public class PdfUtil {
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 contentStream.setFont(PDType1Font.HELVETICA, 14);
                 contentStream.setLeading(14.5f);
+                contentStream.beginText();
                 contentStream.newLineAtOffset(25, 725);
 
                 for (Object entry : entries) {

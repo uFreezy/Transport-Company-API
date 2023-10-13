@@ -88,10 +88,11 @@ public class Seeder implements ApplicationRunner {
         List<String> names = Arrays.asList("Ivan", "Petkan", "Georgi");
         List<String> lastNames = Arrays.asList("Ivanov", "Dimitrov", "Balkandzhiev");
 
+        Random rand = new Random();
         for (int i = 0; i < 10; i++) {
             long egn;
             do {
-                egn = rGenerator.nextLong(9_000_000_000L) + 1_000_000_000L;
+                egn = rand.nextLong() * 9_000_000_000L + 1_000_000_000L;
             } while (clientService.idExists(egn));
 
             String name = names.get(rGenerator.nextInt(names.size())) + " " + lastNames.get(rGenerator.nextInt(lastNames.size()));
