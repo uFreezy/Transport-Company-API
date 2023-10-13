@@ -44,10 +44,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public PaginatedResponse getClients(Pageable pageable) {
+    public PaginatedResponse<ClientDto> getClients(Pageable pageable) {
         Page<Client> books = this.clientRepository.findAll(pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(books.getContent(), ClientDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(books.getContent(), ClientDto.class),
                 books.getTotalElements(), books.getTotalPages());
     }
 

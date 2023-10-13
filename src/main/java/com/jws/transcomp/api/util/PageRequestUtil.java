@@ -4,36 +4,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PageRequestUtil {
     private PageRequestUtil() {
     }
 
     public static PageRequest createPageRequest(Pageable pageable, String sort) {
-        Sort sortObj = null;
         String[] sortCriteria = sort.split(",");
+        List<Sort.Order> orders = new ArrayList<>();
 
         for (String criteria : sortCriteria) {
             char dir = criteria.charAt(0);
             String attr = criteria.substring(1);
-
-            if (sortObj == null) {
-                if (dir == '+')
-                    sortObj = Sort.by(attr).ascending();
-                else if (dir == '-')
-                    sortObj = Sort.by(attr).descending();
-                else
-                    sortObj = Sort.by(attr);
-            } else {
-                if (dir == '+')
-                    sortObj = sortObj.and(Sort.by(attr).ascending());
-                else if (dir == '-')
-                    sortObj = sortObj.and(Sort.by(attr).descending());
-                else
-                    sortObj = sortObj.and(Sort.by(attr));
-            }
+            Sort.Order order = new Sort.Order(dir == '+' ? Sort.Direction.ASC : Sort.Direction.DESC, attr);
+            orders.add(order);
         }
 
-        assert sortObj != null;
+        Sort sortObj = Sort.by(orders);
         return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortObj);
     }
 }

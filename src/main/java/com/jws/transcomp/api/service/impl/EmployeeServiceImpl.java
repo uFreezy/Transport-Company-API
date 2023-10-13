@@ -69,29 +69,29 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PaginatedResponse findAll(Pageable pageable) {
+    public PaginatedResponse<EmployeeDto> findAll(Pageable pageable) {
         Page<Employee> employees = this.employeeRepository.findAll(pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
                 employees.getTotalElements(),
                 employees.getTotalPages());
     }
 
     @Override
-    public PaginatedResponse findAllByCompany(Long companyId, String sortBy, Pageable pageable) {
+    public PaginatedResponse<EmployeeDto> findAllByCompany(Long companyId, String sortBy, Pageable pageable) {
         if (sortBy != null) {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }
 
         Page<Employee> employees = this.employeeRepository.findAllByCompanyId(companyId, pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
                 employees.getTotalElements(),
                 employees.getTotalPages());
     }
 
     @Override
-    public PaginatedResponse filterEmployees(Long companyId, List<LiscenceType> licenses, BigDecimal salaryFrom, BigDecimal salaryTo, String sortBy, Pageable pageable) {
+    public PaginatedResponse<EmployeeDto> filterEmployees(Long companyId, List<LiscenceType> licenses, BigDecimal salaryFrom, BigDecimal salaryTo, String sortBy, Pageable pageable) {
         if (companyId == null) {
             throw new IllegalArgumentException("Company id is empty.");
         }
@@ -120,7 +120,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Page<Employee> employees = this.employeeRepository.findAll(spec, pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(employees.getContent(), EmployeeDto.class),
                 employees.getTotalElements(),
                 employees.getTotalPages());
     }
