@@ -24,12 +24,8 @@ public class PaginatedResponse<T> implements Serializable {
         ModelMapper mapper = new ModelMapper();
 
         data.forEach(element -> {
-            try {
-                D dto = mapper.map(element, dtoType);
-                result.add(dto);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            D dto = mapper.map(element, dtoType);
+            result.add(dto);
         });
 
         return result;
