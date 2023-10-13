@@ -86,7 +86,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public PaginatedResponse filterTrips(Long companyId, String destination, String sortBy, Pageable pageable) {
+    public PaginatedResponse<TripDto> filterTrips(Long companyId, String destination, String sortBy, Pageable pageable) {
         if (companyId == null) {
             throw new IllegalArgumentException("Company id is empty.");
         }
@@ -103,7 +103,7 @@ public class TripServiceImpl implements TripService {
 
         Page<Trip> trips = this.tripRepository.findAll(spec, pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(trips.getContent(), TripDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(trips.getContent(), TripDto.class),
                 trips.getTotalElements(),
                 trips.getTotalPages());
     }

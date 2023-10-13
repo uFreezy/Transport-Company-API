@@ -97,7 +97,7 @@ class TripControllerTest extends BaseTestController {
 
 
         given(this.tripService.filterTrips(employee.getCompany().getId(), destination, null, DEFAULT_PAGE))
-                .willReturn(new PaginatedResponse(trips, (long) trips.size(), 1));
+                .willReturn(new PaginatedResponse<>(trips, (long) trips.size(), 1));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/trips/all?destination=" + destination))
                 .andExpect(status().isOk())
@@ -114,7 +114,7 @@ class TripControllerTest extends BaseTestController {
         sortedTrips.sort(Comparator.comparing(TripDto::getBasePrice));
 
         given(this.tripService.filterTrips(employee.getCompany().getId(), null, sortCriteria, DEFAULT_PAGE))
-                .willReturn(new PaginatedResponse(sortedTrips, (long) sortedTrips.size(), 1));
+                .willReturn(new PaginatedResponse<>(sortedTrips, (long) sortedTrips.size(), 1));
 
 
         mockMvc.perform(MockMvcRequestBuilders.get("/trips/all?sort_by=" + sortCriteria))
@@ -148,7 +148,7 @@ class TripControllerTest extends BaseTestController {
     void getTripReport_Successfully() throws Exception {
         // hackerman
         given(this.tripService.filterTrips(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .willReturn(new PaginatedResponse(this.trips, (long) this.trips.size(), 1));
+                .willReturn(new PaginatedResponse<>(this.trips, (long) this.trips.size(), 1));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/trips/report"))
                 .andExpect(status().isOk())

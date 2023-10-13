@@ -28,47 +28,36 @@ public class PdfUtil {
     }
 
     public static byte[] generatePdf(List<?> entries) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PDDocument document = new PDDocument();
-        PDPage page = new PDPage();
-        document.addPage(page);
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
 
-        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                contentStream.setFont(PDType1Font.HELVETICA, 14);
+                contentStream.setLeading(14.5f);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(25, 725);
 
-        contentStream.setFont(PDType1Font.HELVETICA, 14);
+                for (Object entry : entries) {
+                    contentStream.showText("----------");
+                    contentStream.newLine();
 
-        contentStream.beginText();
-        //Setting the leading
-        contentStream.setLeading(14.5f);
+                    String[] lines = StringUtils.splitByWholeSeparatorPreserveAllTokens(
+                            removeInvalidChar(entry.toString()), ",", 100);
 
-        //Setting the position for the line
-        contentStream.newLineAtOffset(25, 725);
-
-        entries.forEach(entry -> {
-            try {
-                contentStream.showText("----------");
-                contentStream.newLine();
-                List<String> lines = List.of(StringUtils
-                        .splitByWholeSeparatorPreserveAllTokens(removeInvalidChar(entry.toString()), ",", 100));
-                lines.forEach(l -> {
-                    try {
-                        contentStream.showText(l);
+                    for (String line : lines) {
+                        contentStream.showText(line);
                         contentStream.newLine();
-                    } catch (IOException ignored) {
                     }
-                });
 
-                contentStream.newLine();
-
-            } catch (IOException ignored) {
+                    contentStream.newLine();
+                }
             }
-        });
 
-        contentStream.endText();
-        contentStream.close();
-
-        document.save(byteArrayOutputStream);
-        document.close();
-        return byteArrayOutputStream.toByteArray();
+            document.save(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        }
     }
+
 }

@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping("/employees")
 public class EmployeeController extends BaseController {
 
+
     @GetMapping("/{username}")
     public ResponseEntity<Object> getEmployee(@PathVariable String username) {
         Employee employee = this.userService.findByUsername(username);

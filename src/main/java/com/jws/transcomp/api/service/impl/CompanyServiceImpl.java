@@ -78,7 +78,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public PaginatedResponse filterCompanies(String name, BigDecimal revenueFrom, BigDecimal revenueTo, String sortBy, Pageable pageable) {
+    public PaginatedResponse<CompanyDto> filterCompanies(String name, BigDecimal revenueFrom, BigDecimal revenueTo, String sortBy, Pageable pageable) {
         if (sortBy != null) {
             pageable = PageRequestUtil.createPageRequest(pageable, sortBy);
         }
@@ -99,7 +99,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         Page<Company> companies = this.companyRepository.findAll(spec, pageable);
 
-        return new PaginatedResponse(PaginatedResponse.mapDto(companies.getContent(), CompanyDto.class),
+        return new PaginatedResponse<>(PaginatedResponse.mapDto(companies.getContent(), CompanyDto.class),
                 companies.getTotalElements(),
                 companies.getTotalPages());
     }
